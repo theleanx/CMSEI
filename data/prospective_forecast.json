@@ -1,0 +1,168 @@
+{
+ "version": "fc-1",
+ "frozen_on": "2026-11-25",
+ "window": {
+  "start": "2026-12-01",
+  "end": "2027-11-30"
+ },
+ "formula_version": "1.1",
+ "taxonomy_version": "2026.11-preview.1",
+ "source_vintage": "USGS MCS 2024",
+ "taxonomy_sha256": "e05cd859ad16597080259983f61c90b855017ca6ee66f07fd888cbc756478f3d",
+ "d_note": "D was 1.0 (estimated) for every material when frozen.",
+ "plan": {
+  "question": "Do the frozen scores rank materials that later face a government export restriction above the others?",
+  "positive": "A government in a producing country announces a licensing requirement, quota or ban on exports of the material or its main compounds inside the window, recorded by an official or law-firm source in data/shocks.json.",
+  "measures": [
+   "CMSEI composite (no events)",
+   "top producer's world share",
+   "world-production HHI",
+   "US import HHI"
+  ],
+  "statistic": "AUC on the frozen values, reported with the number of positives.",
+  "h1": "CMSEI AUC is above 0.5.",
+  "h2": "CMSEI AUC is at least the top-producer-share AUC.",
+  "decision_rule": "If h2 fails with at least 3 positives, the front page says the index does not beat simple concentration, and the index is described as a view of concentration, not a predictor.",
+  "not_allowed": [
+   "changing the frozen values",
+   "adding or removing materials from the frozen set",
+   "choosing positives after seeing scores"
+  ]
+ },
+ "ranking": [
+  {
+   "id": "niobium",
+   "cmsei": 77.791,
+   "top_producer_share": 90.014,
+   "production_hhi": 8173.8,
+   "import_hhi": 5032.0
+  },
+  {
+   "id": "rare-earths",
+   "cmsei": 74.669,
+   "top_producer_share": 67.927,
+   "production_hhi": 4909.2,
+   "import_hhi": 5366.0
+  },
+  {
+   "id": "gallium",
+   "cmsei": 73.381,
+   "top_producer_share": 98.361,
+   "production_hhi": 9675.9,
+   "import_hhi": 1559.0
+  },
+  {
+   "id": "bismuth",
+   "cmsei": 72.273,
+   "top_producer_share": 81.633,
+   "production_hhi": 6794.2,
+   "import_hhi": 5032.0
+  },
+  {
+   "id": "magnesium-metal",
+   "cmsei": 63.055,
+   "top_producer_share": 88.392,
+   "production_hhi": 7838.6,
+   "import_hhi": 567.0
+  },
+  {
+   "id": "fluorspar",
+   "cmsei": 61.204,
+   "top_producer_share": 65.054,
+   "production_hhi": 4506.2,
+   "import_hhi": 4393.0
+  },
+  {
+   "id": "arsenic",
+   "cmsei": 58.089,
+   "top_producer_share": 44.821,
+   "production_hhi": 3775.5,
+   "import_hhi": 4329.0
+  },
+  {
+   "id": "cobalt",
+   "cmsei": 55.939,
+   "top_producer_share": 74.139,
+   "production_hhi": 5583.7,
+   "import_hhi": 1163.0
+  },
+  {
+   "id": "lithium",
+   "cmsei": 55.774,
+   "top_producer_share": 46.567,
+   "production_hhi": 3096.3,
+   "import_hhi": 4463.0
+  },
+  {
+   "id": "indium",
+   "cmsei": 53.753,
+   "top_producer_share": 65.856,
+   "production_hhi": 4808.8,
+   "import_hhi": 1506.0
+  },
+  {
+   "id": "vanadium",
+   "cmsei": 52.741,
+   "top_producer_share": 65.7,
+   "production_hhi": 4805.4,
+   "import_hhi": 1173.0
+  },
+  {
+   "id": "zinc",
+   "cmsei": 50.52,
+   "top_producer_share": 32.841,
+   "production_hhi": 1448.9,
+   "import_hhi": 4908.0
+  },
+  {
+   "id": "bauxite",
+   "cmsei": 50.433,
+   "top_producer_share": 24.798,
+   "production_hhi": 1900.4,
+   "import_hhi": 4277.0
+  },
+  {
+   "id": "nickel",
+   "cmsei": 48.119,
+   "top_producer_share": 50.477,
+   "production_hhi": 2808.4,
+   "import_hhi": 2295.0
+  },
+  {
+   "id": "zirconium-hafnium",
+   "cmsei": 47.994,
+   "top_producer_share": 31.25,
+   "production_hhi": 1800.8,
+   "import_hhi": 3597.0
+  },
+  {
+   "id": "barite",
+   "cmsei": 45.366,
+   "top_producer_share": 31.802,
+   "production_hhi": 1851.1,
+   "import_hhi": 2654.0
+  },
+  {
+   "id": "chromium",
+   "cmsei": 43.83,
+   "top_producer_share": 43.478,
+   "production_hhi": 2436.7,
+   "import_hhi": 1361.0
+  },
+  {
+   "id": "tantalum",
+   "cmsei": 42.377,
+   "top_producer_share": 40.698,
+   "production_hhi": 2383.9,
+   "import_hhi": 947.0
+  },
+  {
+   "id": "tin",
+   "cmsei": 40.764,
+   "top_producer_share": 23.392,
+   "production_hhi": 1422.7,
+   "import_hhi": 1691.0
+  }
+ ],
+ "content_sha256": "8842b1b5530d29fb58a092e31d52be5f8e1e8ec71f4576222422cbad9d5c3b41"
+}

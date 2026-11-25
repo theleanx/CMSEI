@@ -1,0 +1,26 @@
+{
+ "version": "cand-1",
+ "note": "Reported restrictions that still need an official or law-firm source before they can be used as labels. Nothing here is counted.",
+ "candidates": [
+  {
+   "material": "graphite",
+   "what": "China export licensing, reported effective 1 Dec 2023",
+   "need": "MOFCOM announcement or law-firm note"
+  },
+  {
+   "material": "antimony",
+   "what": "China export licensing, reported effective 15 Sep 2024",
+   "need": "MOFCOM announcement or law-firm note"
+  },
+  {
+   "material": "gallium, germanium, antimony",
+   "what": "China ban on exports to the US, reported Dec 2024",
+   "need": "MOFCOM announcement"
+  },
+  {
+   "material": "to search",
+   "what": "OECD Inventory of Export Restrictions on Industrial Raw Materials, filtered to the 24 scored and coverage materials",
+   "need": "person with access; record each event with its source"
+  }
+ ]
+}

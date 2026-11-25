@@ -13,7 +13,7 @@ from __future__ import annotations
 import csv
 import io
 import re
-from . import classifier, taxonomy
+from . import classifier, coverage, taxonomy
 
 MAX_BYTES = 2_000_000
 MAX_ROWS = 20_000
@@ -184,7 +184,7 @@ def parse(raw: bytes | str) -> dict:
             warnings.append(f"Row {n}: spend is not a number and was ignored.")
         rows.append({"row": n, "product": g("product") or "(no product)", "part": g("part") or f"(row {n})", "supplier": g("supplier") or "(no supplier)",
                      "minerals": ids, "matched_by": how, "spend": spend, "origin": g("origin") or None, "processing": g("processing") or None,
-                     "hts": g("hts") or None})
+                     "hts": g("hts") or None, "unscored": coverage.mentions(g("minerals"), g("description"))})
     if not rows:
         raise BomError("The file has a header but no data rows.")
     return {"rows": rows, "columns_found": sorted(cols), "warnings": warnings[:20]}
@@ -262,6 +262,12 @@ def analyze(rows: list[dict], scores: dict, top: int = 25) -> dict:
                 by_sup[p["supplier"]] = by_sup.get(p["supplier"], 0.0) + (p["spend"] or 0.0)
         s, v = max(by_sup.items(), key=lambda kv: kv[1])
         top_sup_share = {"supplier": s, "share": v / high_spend}
+    unscored = {}
+    for r in rows:
+        for u in r.get("unscored", []):
+            e = unscored.setdefault(u, {"id": u, "name": coverage.name(u), "parts": 0, "spend": 0.0})
+            e["parts"] += 1
+            e["spend"] += r["spend"] or 0.0
     headline = None
     if products:
         p0 = products[0]
@@ -271,7 +277,8 @@ def analyze(rows: list[dict], scores: dict, top: int = 25) -> dict:
         "summary": {"rows": len(rows), "mapped_rows": len(mapped), "unmapped_rows": len(unmapped), "products": len({r['product'] for r in rows}),
                     "suppliers": len({r['supplier'] for r in rows}), "spend_total": spend_total, "spend_mapped": spend_mapped,
                     "spend_high_or_critical": high_spend, "has_spend": spend_total > 0, "top_supplier_in_high_spend": top_sup_share,
-                    "origin_declared": n_origin, "headline": headline},
+                    "origin_declared": n_origin, "headline": headline,
+                    "unscored_minerals": sorted(unscored.values(), key=lambda e: (-e["parts"], e["name"]))},
         "products": products[:top * 4], "suppliers": suppliers[:top * 4], "materials": materials,
         "parts": sorted(parts, key=lambda p: (-scores[p["driver"]]["composite"], p["part"]))[:top * 8],
         "unmapped_sample": [u["part"] for u in unmapped[:25]],

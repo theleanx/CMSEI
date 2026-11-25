@@ -14,9 +14,15 @@
 <div class="card"><h2>What this means</h2>
 <p>The index's own ranking is better than chance but not clearly so, and a one-line measure (the top producer's share of world output) did at least as well. Until a larger, independently labelled test shows otherwise, use the score as one screening input, not as a forecast.</p>
 <h3>Limits</h3><ul>{% for l in v.limits %}<li>{{ l }}</li>{% endfor %}</ul></div>
+{% set p = v.prospective %}{% if p and p.status != 'no_forecast_frozen' %}<div class="card"><h2>The test that cannot be gamed: a frozen forecast</h2>
+<p>The scores above were checked against events that had already happened, so they prove little. On {{ p.frozen_on }} the scores of all {{ p.n_frozen_materials }} materials were frozen in a file (fingerprint <code>{{ p.content_sha256[:16] }}</code>). They are judged only on restrictions announced from {{ p.window.start }} to {{ p.window.end }}.</p>
+{% if p.status == 'scored' %}<p><strong>{{ p.positives|length }} materials restricted so far.</strong> AUC: CMSEI {{ p.auc.cmsei }}, top producer's share {{ p.auc.top_producer_share }}, production HHI {{ p.auc.production_hhi }}, import HHI {{ p.auc.import_hhi }}. {{ p.note }}</p>
+{% else %}<p><strong>Result: none yet.</strong> {{ p.note }}</p>{% endif %}
+<p class="small">The rule for what happens if the index loses to the one-line baseline was written down before the window opened. Anyone can check the file in the public repository's history.</p></div>{% endif %}
+{% if v.positives_not_scored %}<div class="card"><h2>Restricted but not scored</h2><p>{% for i in v.positives_not_scored %}{{ names.get(i, i|capitalize) }}{{ ', ' if not loop.last else '' }}{% endfor %} faced export restrictions but are not scored, so they cannot be tested. Once they are added, the tests above include them automatically. See <a href="/coverage">Coverage</a>.</p></div>{% endif %}
 <div class="card"><h2>The restrictions used</h2>
 <p class="small">{{ reg.label_rule }}</p><p class="note warn">{{ reg.completeness_warning }}</p>
-<ul>{% for e in reg.events %}<li><strong>{{ names[e.material_id] }}</strong>: {{ e.country }}, {{ e.instrument }}, announced {{ e.announced }}, effective {{ e.effective }}. {{ e.note }} {% for s in e.sources %}<a href="{{ s.url }}" rel="noopener noreferrer">{{ s.label }}</a>{{ ', ' if not loop.last }}{% endfor %}</li>{% endfor %}</ul>
+<ul>{% for e in reg.events %}<li><strong>{{ names.get(e.material_id, e.material_id|capitalize) }}{% if e.material_id not in names %} (not scored yet){% endif %}</strong>: {{ e.country }}, {{ e.instrument }}, announced {{ e.announced }}, effective {{ e.effective }}. {{ e.note }} {% for s in e.sources %}<a href="{{ s.url }}" rel="noopener noreferrer">{{ s.label }}</a>{{ ', ' if not loop.last }}{% endfor %}</li>{% endfor %}</ul>
 <h3>Considered and left out</h3><ul>{% for o in reg.out_of_scope %}<li><strong>{{ o.material }}</strong>: {{ o.reason }}</li>{% endfor %}</ul>
 <p class="small">Reproduce: <code>python scripts/backtest_shocks.py</code>. Machine-readable: <a href="/api/v1/validation">/api/v1/validation</a>, <a href="/api/v1/validation/registry">registry</a>. Disagree with a label or know of a missing restriction? <a href="/corrections">Report it</a>.</p></div>
 {% endblock %}

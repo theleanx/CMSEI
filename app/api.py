@@ -108,7 +108,8 @@ def data_status(db: Session) -> dict:
         "data_vintage": taxonomy.SOURCE_VINTAGE, "taxonomy_version": taxonomy.TAXONOMY_VERSION, "formula_version": sc.FORMULA_VERSION,
         "snapshot_log": log, "published_snapshots": snaps, "newest_snapshot_at": newest.isoformat() + "Z" if newest else None,
         "quarantined_documents": quarantined, "held_events": held, "held_alert": held > 5, "event_feed_stale": feed_stale, "jobs": last,
-        "maintainer": {"name": settings.maintainer_name, "role": settings.maintainer_role}, "verification": S.verification_status(db),
+        "maintainer": {"name": settings.maintainer_name, "role": settings.maintainer_role},
+        "second_reviewer": {"name": settings.reviewer_name, "role": settings.reviewer_role}, "verification": S.verification_status(db),
         "transcription": "USGS figures were read through a page reader and have not been checked against the PDFs by a person.",
         "caps": {"claude_daily_calls": settings.claude_daily_call_cap, "claude_monthly_calls": settings.claude_monthly_call_cap},
     }
@@ -179,6 +180,7 @@ def material(material_id: str, db: Session = Depends(get_db)):
     return {"id": material_id, "name": m["name"], "group": m["group"], "snapshot": v["snapshot"],
             "inputs": {"import_shares": m["import"], "production_shares": m["production"], "processing": m["processing"],
                        "alternative_sources": m["alternative_sources"], "substitution_difficulty": m["substitution_difficulty"],
+                       "baseline": {"top_producer": m["production"]["shares"][0]["country"], "top_producer_share_percent": m["production"]["shares"][0]["share"], "production_hhi": m["production"]["hhi"], "top_us_import_source": m["dominant_import_country"], "top_us_import_share_percent": m["import"]["shares"][0]["share"]},
                        "d_status": m["d_status"], "net_import_reliance_percent": m["nir"]},
             "divergence_note": v["divergence_note"], "indicative": v["indicative"], "reviewed_by_person": v["reviewed"],
             "under_review": v["under_review"]}

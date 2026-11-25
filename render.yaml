@@ -20,6 +20,7 @@ services:
       - {key: PUBLIC_BASE_URL, value: "https://cmsei-web.onrender.com"}
       - {key: CONTACT_URL, value: "https://github.com/theleanx/CMSEI/issues"}
       - {key: MAINTAINER_NAME, value: "Ankit (GitHub: theleanx)"}
+      - {key: REVIEWER_NAME, value: "Priyanshi Joshi"}
       - {key: ADMIN_PASSWORD, sync: false}
       - {key: ANTHROPIC_API_KEY, sync: false}
   - type: cron

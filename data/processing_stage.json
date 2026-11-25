@@ -1,0 +1,24 @@
+{
+ "version": "proc-1",
+ "note": "Every entry needs a source, a year and a grade. Without an entry a material uses production shares as a stand-in (grade C). Add \"shares\": {country: percent} to use the full distribution.",
+ "entries": {
+  "cobalt": {
+   "country": "China",
+   "share": 75.0,
+   "basis": "over 75% of refined cobalt output, 2022",
+   "source": "IEA, Critical Minerals Market Review 2023 (July 2023), p. 57",
+   "grade": "B",
+   "data_year": 2022,
+   "url": "https://iea.blob.core.windows.net/assets/afc35261-41b2-47d4-86d6-d5d77fc259be/CriticalMineralsMarketReview2023.pdf"
+  },
+  "rare-earths": {
+   "country": "China",
+   "share": 90.0,
+   "basis": "90% of processing, 2022 into 2023",
+   "source": "IEA, Critical Minerals Market Review 2023 (July 2023), p. 59",
+   "grade": "B",
+   "data_year": 2022,
+   "url": "https://iea.blob.core.windows.net/assets/afc35261-41b2-47d4-86d6-d5d77fc259be/CriticalMineralsMarketReview2023.pdf"
+  }
+ }
+}

@@ -1,5 +1,5 @@
 {
- "registry_version": "shocks-1",
+ "registry_version": "shocks-2",
  "formula_version": "1.1",
  "source_vintage": "USGS MCS 2024",
  "n_materials": 19,
@@ -11,6 +11,11 @@
   "indium",
   "nickel",
   "rare-earths"
+ ],
+ "positives_not_scored": [
+  "germanium",
+  "tellurium",
+  "tungsten"
  ],
  "seed": 20261124,
  "n_boot": 5000,
@@ -118,12 +123,27 @@
    0.051
   ]
  },
+ "prospective": {
+  "status": "waiting",
+  "forecast_version": "fc-1",
+  "frozen_on": "2026-11-25",
+  "window": {
+   "start": "2026-12-01",
+   "end": "2027-11-30"
+  },
+  "content_sha256": "8842b1b5530d29fb58a092e31d52be5f8e1e8ec71f4576222422cbad9d5c3b41",
+  "n_frozen_materials": 19,
+  "events_in_window": [],
+  "events_outside_frozen_set": [],
+  "note": "No restriction in the registry has been announced inside the window yet, so there is nothing to score."
+ },
  "reading": "6 of 19 materials had a documented export restriction. The index ranks them with AUC 0.744 (95% interval 0.487 to 0.949), which does not clearly exceed chance (0.5). The index does no better than the plain top-producer-share baseline in this sample, and the interval for the difference includes zero.",
  "limits": [
   "Sample is tiny: a handful of positives. Intervals are wide and a single material can move the result.",
   "The registry is not an exhaustive search, so some negatives may be mislabelled.",
   "The index uses 2023 production and 2019-22 import tables that are unverified transcriptions. Nickel's restriction (2020) predates the data.",
   "The test checks ranking only. It says nothing about timing or size of any disruption.",
-  "Labels were built after the index design, with knowledge of the result. This is a pilot, not an out-of-sample test."
+  "Labels were built after the index design, with knowledge of the result. This is a pilot, not an out-of-sample test.",
+  "The out-of-sample test is the frozen forecast (data/prospective_forecast.json): scores were fixed on 2026-11-25 and are judged only on restrictions announced from 2026-12-01. It has no result until such events occur."
  ]
 }

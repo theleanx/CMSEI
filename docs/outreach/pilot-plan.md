@@ -2,7 +2,7 @@
 
 **Goal.** Learn whether manufacturers act on the output, and find what is wrong, before wide promotion.
 
-**Before starting** (blocking): refresh the data to MCS 2026 and complete the double-entry check (docs/DATA-REFRESH.md); name a second reviewer; counsel review of Terms, Privacy and the compliance rules; confirm the CMSEI name is clear to use.
+**Before starting** (blocking): refresh the data to MCS 2026 and complete the double-entry check (docs/DATA-REFRESH.md); have the second reviewer (Priyanshi Joshi) do the double entry; counsel review of Terms, Privacy and the compliance rules; confirm the CMSEI name is clear to use.
 
 **Weeks 1-2: recruit.** Offer the one-pager to 2-3 MEP centers (NIST MEP lists centers by state) and one trade association. Ask each for two plants with a defense, electronics, EV or aerospace link.
 

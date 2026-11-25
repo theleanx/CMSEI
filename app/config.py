@@ -41,6 +41,8 @@ class Settings:
     # Governance. Shown on the Status and Methodology pages and on every PDF.
     maintainer_name = os.environ.get("MAINTAINER_NAME", "Ankit (GitHub: theleanx)")
     maintainer_role = os.environ.get("MAINTAINER_ROLE", "Maintainer and data steward")
+    reviewer_name = os.environ.get("REVIEWER_NAME", "Priyanshi Joshi")
+    reviewer_role = os.environ.get("REVIEWER_ROLE", "Second reviewer (double-entry data check) and co-author")
     # Optional email for alert confirmations. Alerts to Slack or Teams need no SMTP.
     smtp_host = os.environ.get("SMTP_HOST", "")
     smtp_port = int(os.environ.get("SMTP_PORT", "587"))

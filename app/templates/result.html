@@ -25,6 +25,12 @@
   {% if not reviewed %}<p class="note">A reviewer has not yet signed off this material's first data load.</p>{% endif %}
 </section>
 
+<section class="card" aria-labelledby="base-h">
+  <h2 id="base-h">The simple check, side by side</h2>
+  <p>{{ material.production.shares[0].country }} produced <strong>{{ material.production.shares[0].share|round|int }}%</strong> of world output in {{ material.production.year }}, and the largest source of US imports is {{ material.dominant_import_country }} at <strong>{{ material.import.shares[0].share|round|int }}%</strong>. World-production concentration index (HHI): {{ material.production.hhi|round|int }} of 10,000.</p>
+  <p class="small">In our back-test this one number ranked restricted materials at least as well as the index did (<a href="/validation">Validation</a>). The index adds what the simple number leaves out: who else could supply, how concentrated processing is, and what is happening now. Read the two together. If they disagree, look at why.</p>
+</section>
+
 <section class="card" aria-labelledby="sure-h">
   <h2 id="sure-h">How sure is this score?</h2>
   <p>Reasonable range: <strong>{{ u.range_low|round|int }} to {{ u.range_high|round|int }}</strong>. This comes from {{ u.n_runs }} seeded variations of the weights, the substitution factor, event size, country shares, and whether each listed producer is credited as an alternate.</p>
@@ -45,7 +51,7 @@
     <tbody>
       <tr><th scope="row">Concentration</th><td>{{ s.components.concentration|round|int }}/100</td><td>US import shares, 2019-22. Grade {{ u.grades.concentration }}.</td></tr>
       <tr><th scope="row">Processing-stage risk</th><td>{{ s.components.processing_risk|round|int }}/100</td><td>{{ material.processing.note }} Grade {{ u.grades.processing }}.</td></tr>
-      <tr><th scope="row">Substitution difficulty</th><td>{{ s.components.substitution_difficulty|round|int }}/100</td><td>{{ u.N_eff|round(2) }} alternate-source credits; difficulty factor {{ material.substitution_difficulty }} (estimated, not expert-reviewed).</td></tr>
+      <tr><th scope="row">Substitution difficulty</th><td>{{ s.components.substitution_difficulty|round|int }}/100</td><td>{{ u.N_eff|round(2) }} alternate-source credits; difficulty factor {{ material.substitution_difficulty }}{% if material.d_status == 'expert_reviewed' %} (median of {{ material.d_review.n_experts }} expert ratings, range {{ material.d_review.min }} to {{ material.d_review.max }}{% if material.d_review.disagreement %}; the experts disagreed{% endif %}){% else %} (estimated, not expert-reviewed){% endif %}.</td></tr>
       <tr><th scope="row">Geopolitical condition</th><td>{{ '%.2f'|format(s.components.geopolitical_multiplier) }}×</td><td>{% if s.components.geopolitical_multiplier > 1 %}Active confirmed events raise the score.{% if s.explanation %} {{ s.explanation }}{% endif %}{% else %}No confirmed event is counted. The event monitor runs in shadow mode and does not change scores yet.{% endif %}</td></tr>
     </tbody></table></div>
   {% if divergence_note %}<p class="note warn"><strong>Import sources look varied, but world production is concentrated.</strong> {{ material.dominant_country }} produces {{ material.production.shares[0].share|round|int }}% of world output while the largest US import source is {{ material.dominant_import_country }} at {{ material.import.shares[0].share|round|int }}%.</p>{% endif %}

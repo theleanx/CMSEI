@@ -3,7 +3,10 @@
 {% block main %}
 <h1>Who stands behind the data</h1>
 <div class="card"><h2>Maintainer</h2><p><strong>{{ m.maintainer }}</strong>, {{ m.role }}.{% if m.contact %} Contact: <a href="{{ m.contact }}">{{ m.contact }}</a>.{% endif %}</p>
-<p>The maintainer decides what is published, signs off data, and answers corrections. One person is a weak point: a second reviewer is recommended before wide promotion. See <a href="https://github.com/theleanx/CMSEI/blob/main/GOVERNANCE.md">GOVERNANCE.md</a>.</p></div>
+<p>The maintainer decides what is published, signs off data, and answers corrections.</p>
+{% if m.reviewer %}<h2>Second reviewer</h2><p><strong>{{ m.reviewer }}</strong>, {{ m.reviewer_role }}.</p>
+<p>She types the USGS figures a second time without looking at the data file, and the two entries must match before a material counts as checked. She is also a co-author, so an outside reviewer with no stake in the project would add independence. The admin console still uses one shared login, so the site cannot yet enforce that the two checks come from different people; the record names who did each.</p>{% endif %}
+<p>See <a href="https://github.com/theleanx/CMSEI/blob/main/GOVERNANCE.md">GOVERNANCE.md</a>.</p></div>
 <div class="card"><h2>What a person has checked</h2>
 <table class="plain"><tbody>
 <tr><th scope="row">Materials with import and production figures compared against the published table</th><td>{{ v.import_and_production_checked }} of {{ v.materials }}</td></tr>

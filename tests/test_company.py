@@ -391,7 +391,7 @@ def test_published_validation_matches_the_code():
 def test_validation_registry_is_sourced_and_inside_platform_scope():
     reg = validation.registry()
     for e in reg["events"]:
-        assert e["material_id"] in taxonomy.MATERIALS and e["sources"] and all(s["url"].startswith("https://") for s in e["sources"])
+        assert (e["material_id"] in taxonomy.MATERIALS or e["material_id"] in {m["id"] for m in __import__("app.engine.coverage", fromlist=["x"]).GAPS}) and e["sources"] and all(s["url"].startswith("https://") for s in e["sources"])
         assert e["announced"] <= e["effective"]
 
 

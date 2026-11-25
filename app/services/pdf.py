@@ -100,6 +100,9 @@ def company_report(res: dict, company_name: str = "") -> bytes:
         els += [Spacer(1, 6), Paragraph("<b>" + _esc(s["headline"]) + "</b>", body)]
     els.append(Paragraph(f"{s['mapped_rows']} of {s['rows']} parts matched to a tracked material across {s['products']} products and {s['suppliers']} suppliers."
                          + (f" Spend on matched parts {money(s['spend_mapped'])} of {money(s['spend_total'])}." if s["has_spend"] else ""), body))
+    if s.get("unscored_minerals"):
+        els.append(Paragraph("<b>Not scored:</b> " + _esc("; ".join(f"{u['parts']} part(s) mention {u['name'].lower()}" for u in s["unscored_minerals"]))
+                             + ". CMSEI does not score these materials yet, so this screen understates exposure.", small))
     if res["indicative_materials"]:
         els.append(Paragraph("Indicative data (grade C) behind: " + _esc(", ".join(res["indicative_materials"])) + ". Treat these as screening only.", small))
     els.append(Paragraph("Most exposed products", h2))

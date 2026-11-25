@@ -6,6 +6,7 @@ composites computed from the loaded USGS 2024 tables with no event layer. Compar
 Everything is deterministic: the bootstrap and permutation tests use a fixed seed.
 """
 from __future__ import annotations
+import hashlib
 import json
 import numpy as np
 from . import scoring as sc, taxonomy
@@ -43,11 +44,11 @@ def _auc_for(feats, ids, pos_ids, key) -> float:
     return round(auc(np.array([feats[i][key] for i in ids]), labels), 3)
 
 
-def sensitivity(feats, ids, pos_ids) -> dict:
+def sensitivity(feats, ids, pos_ids, ) -> dict:
     """AUC when the weakest label is dropped (nickel: an ore ban, not a ban on the refined metal the data describes)
     and when only China-imposed restrictions count."""
     cases = {"all labels": set(pos_ids), "without nickel (ore ban)": set(pos_ids) - {"nickel"},
-             "China-imposed only": {e["material_id"] for e in registry()["events"] if e["country"] == "China"}}
+             "China-imposed only": {e["material_id"] for e in registry()["events"] if e["country"] == "China" and e["material_id"] in feats}}
     out = {}
     for name, pos in cases.items():
         rest = [i for i in ids if i in pos or i not in set(pos_ids)]   # a dropped positive is removed, not turned into a negative
@@ -58,8 +59,10 @@ def sensitivity(feats, ids, pos_ids) -> dict:
 
 def run() -> dict:
     reg = registry()
-    pos_ids = sorted({e["material_id"] for e in reg["events"]})
     feats = features()
+    all_pos = sorted({e["material_id"] for e in reg["events"]})
+    pos_ids = [i for i in all_pos if i in feats]
+    unscored_pos = [i for i in all_pos if i not in feats]   # restricted but not scored yet: listed, never counted
     ids = sorted(feats)
     labels = np.array([1 if i in pos_ids else 0 for i in ids])
     rng = np.random.default_rng(SEED)
@@ -92,16 +95,58 @@ def run() -> dict:
     d = results["cmsei"]["auc"] - results["top_producer_share"]["auc"]
     return {
         "registry_version": reg["version"], "formula_version": sc.FORMULA_VERSION, "source_vintage": taxonomy.SOURCE_VINTAGE,
-        "n_materials": len(ids), "n_positive": int(labels.sum()), "positives": pos_ids, "seed": SEED, "n_boot": N_BOOT, "n_perm": N_PERM,
+        "n_materials": len(ids), "n_positive": int(labels.sum()), "positives": pos_ids, "positives_not_scored": unscored_pos, "seed": SEED, "n_boot": N_BOOT, "n_perm": N_PERM,
         "results": results, "sensitivity": sensitivity(feats, ids, pos_ids),
         "cmsei_minus_top_producer_share": {"auc_difference": round(d, 3), "ci95": [round(float(dlo), 3), round(float(dhi), 3)]},
+        "prospective": prospective(reg),
         "reading": reading(results, d, dlo, dhi, int(labels.sum()), len(ids)),
         "limits": ["Sample is tiny: a handful of positives. Intervals are wide and a single material can move the result.",
                    "The registry is not an exhaustive search, so some negatives may be mislabelled.",
                    "The index uses 2023 production and 2019-22 import tables that are unverified transcriptions. Nickel's restriction (2020) predates the data.",
                    "The test checks ranking only. It says nothing about timing or size of any disruption.",
-                   "Labels were built after the index design, with knowledge of the result. This is a pilot, not an out-of-sample test."],
+                   "Labels were built after the index design, with knowledge of the result. This is a pilot, not an out-of-sample test.",
+                   "The out-of-sample test is the frozen forecast (data/prospective_forecast.json): scores were fixed on 2026-11-25 and are judged only on restrictions announced from 2026-12-01. It has no result until such events occur."],
     }
+
+
+FORECAST = "prospective_forecast.json"
+
+
+def forecast_body(fc: dict) -> dict:
+    return {k: v for k, v in fc.items() if k != "content_sha256"}
+
+
+def forecast_hash(fc: dict) -> str:
+    return hashlib.sha256(json.dumps(forecast_body(fc), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def prospective(reg: dict) -> dict:
+    """The frozen forecast judged against restrictions announced inside its window. Scores come from the frozen file, not from today's data."""
+    p = taxonomy.DATA / FORECAST
+    if not p.exists():
+        return {"status": "no_forecast_frozen"}
+    fc = json.loads(p.read_text())
+    w0, w1 = fc["window"]["start"], fc["window"]["end"]
+    rank = {r["id"]: r for r in fc["ranking"]}
+    inside = [e for e in reg["events"] if w0 <= e["announced"] <= w1]
+    pos = sorted({e["material_id"] for e in inside if e["material_id"] in rank})
+    out = {"status": "waiting", "forecast_version": fc["version"], "frozen_on": fc["frozen_on"], "window": fc["window"],
+           "content_sha256": fc["content_sha256"], "n_frozen_materials": len(rank), "events_in_window": [e["id"] for e in inside],
+           "events_outside_frozen_set": sorted({e["material_id"] for e in inside if e["material_id"] not in rank})}
+    if not pos:
+        out["note"] = "No restriction in the registry has been announced inside the window yet, so there is nothing to score."
+        return out
+    ids = sorted(rank)
+    labels = np.array([1 if i in pos else 0 for i in ids])
+    if labels.sum() == len(ids):
+        out["note"] = "Every frozen material was restricted, so a ranking cannot be judged."
+        return out
+    out["status"] = "scored"
+    out["positives"] = pos
+    out["auc"] = {k: round(auc(np.array([rank[i][k] for i in ids]), labels), 3) for k in ("cmsei", "top_producer_share", "production_hhi", "import_hhi")}
+    out["note"] = ("Plain AUC on the frozen scores, no interval: with this few positives an interval would not mean much. "
+                   "Decision rule fixed in advance: if CMSEI's AUC is below the top-producer-share AUC with at least 3 positives, the site says so on its front page.")
+    return out
 
 
 def reading(results, d, dlo, dhi, n_pos, n) -> str:

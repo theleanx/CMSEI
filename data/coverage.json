@@ -1,0 +1,77 @@
+{
+ "version": "cov-1",
+ "compiled": "2026-11-25",
+ "note": "These materials matter to US manufacturers and several faced export restrictions, but CMSEI does not score them yet. Scores are not made up: each one needs its USGS tables typed in twice by two people (docs/ADD-MATERIAL.md). Until then, parts that mention them are listed as 'not scored' so the gap is visible.",
+ "materials": [
+  {
+   "id": "germanium",
+   "name": "Germanium",
+   "synonyms": [
+    "germanium",
+    "germanium dioxide",
+    "germanium optics",
+    "infrared optics"
+   ],
+   "why": "China began licensing germanium exports on 1 Aug 2023, with gallium.",
+   "restriction_event": "ge-2023",
+   "usgs": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-germanium.pdf"
+  },
+  {
+   "id": "graphite",
+   "name": "Graphite",
+   "synonyms": [
+    "graphite",
+    "natural graphite",
+    "synthetic graphite",
+    "graphite anode",
+    "battery anode",
+    "spherical graphite",
+    "graphite electrode"
+   ],
+   "why": "Battery anodes depend on it. A Chinese export licensing rule was reported for graphite in late 2023; the source is not yet in the registry.",
+   "restriction_event": null,
+   "usgs": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-graphite.pdf"
+  },
+  {
+   "id": "antimony",
+   "name": "Antimony",
+   "synonyms": [
+    "antimony",
+    "antimony trioxide",
+    "antimony flame retardant",
+    "antimonial lead"
+   ],
+   "why": "A Chinese export rule on antimony was reported for 2024; the source is not yet in the registry.",
+   "restriction_event": null,
+   "usgs": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-antimony.pdf"
+  },
+  {
+   "id": "tungsten",
+   "name": "Tungsten",
+   "synonyms": [
+    "tungsten",
+    "tungsten carbide",
+    "cemented carbide",
+    "wolfram",
+    "tungsten heavy alloy"
+   ],
+   "why": "China began licensing tungsten exports on 4 Feb 2025. Defense sourcing rules (DFARS) may also cover it: counsel should check before it is added to the compliance view.",
+   "restriction_event": "w-2025",
+   "usgs": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-tungsten.pdf"
+  },
+  {
+   "id": "tellurium",
+   "name": "Tellurium",
+   "synonyms": [
+    "tellurium",
+    "cadmium telluride",
+    "cdte",
+    "bismuth telluride"
+   ],
+   "why": "China began licensing tellurium exports on 4 Feb 2025.",
+   "restriction_event": "te-2025",
+   "usgs": "https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-tellurium.pdf"
+  }
+ ],
+ "status": "awaiting_two_person_entry"
+}

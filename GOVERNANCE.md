@@ -2,7 +2,7 @@
 
 ## Who decides what
 - **Maintainer** (see MAINTAINERS.md): publishes data editions, signs off materials, decides corrections, approves held events, and records alternate-source decisions.
-- **Second reviewer** (recommended, not yet named): performs the double-entry check below so the person who typed a figure is not the only one who checked it.
+- **Second reviewer** (Priyanshi Joshi, co-author): performs the double-entry check below so the person who typed a figure is not the only one who checked it.
 
 ## What "reviewed" means
 A material shows **reviewed** only when its import and production figures have a recorded comparison with the published table, entered in the admin console under a named reviewer, document and page. The admin console refuses sign-off otherwise.

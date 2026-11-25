@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Coverage{% endblock %}
+{% block main %}
+<h1>What CMSEI covers, and what it does not</h1>
+<p class="lead">{{ c.scored }} materials are scored. {{ c.not_scored|length }} more matter to US manufacturers and are not scored yet.</p>
+<div class="card"><h2>Not scored yet</h2>
+<p>{{ c.note }}</p>
+<div class="tablewrap"><table class="plain"><caption class="vh">Materials not scored</caption><thead><tr><th scope="col">Material</th><th scope="col">Why it matters</th><th scope="col">Source tables to enter</th></tr></thead><tbody>
+{% for m in c.not_scored %}<tr><th scope="row">{{ m.name }}</th><td>{{ m.why }}</td><td><a href="{{ m.usgs }}">USGS Mineral Commodity Summaries</a></td></tr>{% endfor %}</tbody></table></div>
+<p class="small">If your parts list mentions one of these, the screen says so instead of dropping it silently. Other critical materials, such as molybdenum, are also missing. Machine-readable: <a href="/api/v1/coverage">/api/v1/coverage</a>.</p></div>
+<div class="card"><h2>How a material gets added</h2>
+<ol><li>Two people each type the same USGS tables into a spreadsheet without seeing the other's copy.</li>
+<li>A script compares the two copies and refuses to continue unless every figure matches.</li>
+<li>The material is built with the same formula as the others and starts as unreviewed.</li></ol>
+<p class="small">Steps are in <a href="https://github.com/theleanx/CMSEI/blob/main/docs/ADD-MATERIAL.md">docs/ADD-MATERIAL.md</a>.</p></div>
+{% endblock %}

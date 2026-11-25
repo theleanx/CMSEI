@@ -1,5 +1,5 @@
 {
- "version": "shocks-1",
+ "version": "shocks-2",
  "compiled": "2026-11-24",
  "window": [
   "2020-01-01",
@@ -117,20 +117,74 @@
      "url": "https://www.usitc.gov/publications/332/executive_briefings/ebot_nickel_and_indonesia_part_1.pdf"
     }
    ]
+  },
+  {
+   "id": "ge-2023",
+   "material_id": "germanium",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2023-07-03",
+   "effective": "2023-08-01",
+   "note": "Same announcement as gallium (MOFCOM and GAC Announcement No. 23 of 2023).",
+   "sources": [
+    {
+     "label": "Mayer Brown, 27 July 2023",
+     "url": "https://www.mayerbrown.com/en/insights/publications/2023/07/china-imposes-new-export-controls-on-two-minerals-critical-to-the-manufacture-of-semiconductors"
+    },
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/17893-announcement-on-the-implementation-of-export-control-of-items-related-to-gallium-and-germanium"
+    }
+   ]
+  },
+  {
+   "id": "w-2025",
+   "material_id": "tungsten",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2025-02-04",
+   "effective": "2025-02-04",
+   "note": "Same announcement as bismuth (Announcement No. 10 of 2025).",
+   "sources": [
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/26795"
+    },
+    {
+     "label": "Global Trade Alert",
+     "url": "https://globaltradealert.org/state-act/90374-china-government-announces-export-control-measures-for-various-items-related-to-tungsten-tellurium-bismuth-molybdenum-and-indium"
+    }
+   ]
+  },
+  {
+   "id": "te-2025",
+   "material_id": "tellurium",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2025-02-04",
+   "effective": "2025-02-04",
+   "note": "Same announcement as bismuth (Announcement No. 10 of 2025).",
+   "sources": [
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/26795"
+    },
+    {
+     "label": "Global Trade Alert",
+     "url": "https://globaltradealert.org/state-act/90374-china-government-announces-export-control-measures-for-various-items-related-to-tungsten-tellurium-bismuth-molybdenum-and-indium"
+    }
+   ]
   }
  ],
  "out_of_scope": [
   {
-   "material": "germanium",
-   "reason": "Announced with gallium (Announcement No. 23 of 2023). Not one of the 19 materials CMSEI scores, so it cannot be tested."
-  },
-  {
-   "material": "tungsten, tellurium, molybdenum",
-   "reason": "Announcement No. 10 of 2025. Not scored by CMSEI."
+   "material": "molybdenum",
+   "reason": "Announcement No. 10 of 2025. Not scored by CMSEI and not on the coverage list yet."
   },
   {
    "material": "cobalt 2022",
    "reason": "No government restriction in 2022 was found. Cobalt prices moved a lot that year, but a price move is not a supply restriction, so it is not used."
   }
- ]
+ ],
+ "note_unscored": "Events for materials CMSEI does not score yet (germanium, tungsten, tellurium) are kept here and count as labels automatically once the material is scored. Until then they are listed as unscored positives and do not enter any statistic."
 }

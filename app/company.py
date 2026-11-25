@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from . import api as api_mod, models as M
 from .config import settings
 from .db import get_db
-from .engine import bom, compliance, taxonomy, validation
+from .engine import bom, compliance, coverage, taxonomy, validation
 from .services import alerts, assess, company as C, pdf, snapshots as S
 from .web import render, check_csrf, error_page
 
@@ -105,6 +105,16 @@ def compliance_page(request: Request):
                                                "names": {k: v["name"] for k, v in taxonomy.MATERIALS.items()}})
 
 
+@web.get("/coverage", response_class=HTMLResponse)
+def coverage_page(request: Request):
+    return render(request, "coverage.html", {"c": coverage.public()})
+
+
+@api.get("/coverage")
+def coverage_api():
+    return coverage.public()
+
+
 @web.get("/governance", response_class=HTMLResponse)
 def governance_page(request: Request, db: Session = Depends(get_db)):
     return render(request, "governance.html", {"v": S.verification_status(db), "m": governance(db)})
@@ -112,6 +122,7 @@ def governance_page(request: Request, db: Session = Depends(get_db)):
 
 def governance(db: Session) -> dict:
     return {"maintainer": settings.maintainer_name, "role": settings.maintainer_role, "contact": settings.contact,
+            "reviewer": settings.reviewer_name, "reviewer_role": settings.reviewer_role,
             "verification": S.verification_status(db), "sign_offs": db.query(M.Material).filter(M.Material.signed_off_by.is_not(None)).count(),
             "policy": "A material shows 'reviewed' only after a person has compared its import and production figures with the published table and recorded it. "
                       "An alternate source earns credit only after a person records evidence that it is qualified."}
