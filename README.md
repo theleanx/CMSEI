@@ -46,7 +46,7 @@ Worked example: C 81.52, P 69.4, S 65, G 1.08 → 77.45, High.
 | Back-test against documented export restrictions | `app/engine/validation.py`, `data/shocks.json`, `scripts/backtest_shocks.py` |
 | Double-entry data check, data refresh procedure | `scripts/verify_transcription.py`, `docs/DATA-REFRESH.md` |
 | Governance, SAP export guide, outreach kit | `GOVERNANCE.md`, `MAINTAINERS.md`, `docs/` |
-| Tests (177) | `tests/` |
+| Tests (0) | `tests/` |
 
 This build uses FastAPI with server-rendered pages, not Next.js. It is one deployable service, which keeps the privacy and security surface small.
 
