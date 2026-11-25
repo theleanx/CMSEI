@@ -1,31 +1,35 @@
 databases:
-  - name: mse-db
+  - name: cmsei-db
     plan: basic-256mb
-    databaseName: mse
-    user: mse
+    region: oregon
+    databaseName: cmsei_db
+    user: cmsei_db_user
+    postgresMajorVersion: "16"
 services:
   - type: web
-    name: mse-web
+    name: cmsei-web
     runtime: docker
     plan: starter
+    region: oregon
     healthCheckPath: /api/v1/health
     envVars:
-      - {key: DATABASE_URL, fromDatabase: {name: mse-db, property: connectionString}}
+      - {key: DATABASE_URL, fromDatabase: {name: cmsei-db, property: connectionString}}
       - {key: APP_ENV, value: production}
       - {key: PUBLISH_EVENTS, value: "false"}
       - {key: LAUNCH_STATUS, value: preview}
-      - {key: PUBLIC_BASE_URL, sync: false}
-      - {key: CONTACT_URL, sync: false}
-      - {key: ADMIN_PASSWORD, generateValue: true}
+      - {key: PUBLIC_BASE_URL, value: "https://cmsei-web.onrender.com"}
+      - {key: CONTACT_URL, value: "https://github.com/theleanx/CMSEI/issues"}
+      - {key: ADMIN_PASSWORD, sync: false}
       - {key: ANTHROPIC_API_KEY, sync: false}
   - type: cron
-    name: mse-daily
+    name: cmsei-daily
     runtime: docker
     plan: starter
+    region: oregon
     schedule: "17 9 * * *"
     dockerCommand: python -m app.worker.cli daily
     envVars:
-      - {key: DATABASE_URL, fromDatabase: {name: mse-db, property: connectionString}}
+      - {key: DATABASE_URL, fromDatabase: {name: cmsei-db, property: connectionString}}
       - {key: APP_ENV, value: production}
       - {key: PUBLISH_EVENTS, value: "false"}
       - {key: ANTHROPIC_API_KEY, sync: false}
