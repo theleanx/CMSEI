@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block main %}
+{% if ok %}<h1>Alerts confirmed</h1><p>You will get an email when a tracked material you picked changes tier.</p>{% else %}<h1>That link is not valid</h1><p>It may have been used already or expired. Subscribe again from the <a href="/alerts">alerts page</a>.</p>{% endif %}
+{% endblock %}

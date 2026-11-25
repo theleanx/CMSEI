@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block main %}
+<h1>{{ 'Check your email' if r.status == 'pending_email' else 'Alerts are on' }}</h1>
+{% if r.status == 'pending_email' %}<p>We sent a confirmation link. Alerts start after you click it.</p>{% else %}<p>A test message was accepted by your webhook. You will get a message when these change: {% for m in r.materials %}{{ names[m] }}{{ ', ' if not loop.last }}{% endfor %}.</p>{% endif %}
+<div class="card"><h2>Save your manage link</h2><p>This is the only time it is shown. It is the only way to stop the alerts or see what is subscribed.</p><p><a href="/alerts/manage/{{ r.manage_token }}">/alerts/manage/{{ r.manage_token }}</a></p></div>
+{% endblock %}

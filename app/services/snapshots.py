@@ -116,6 +116,42 @@ def latest(db: Session, material_id: str) -> M.ScoreSnapshot | None:
                       .order_by(M.ScoreSnapshot.id.desc())).scalars().first()
 
 
+def reviewed_material(db: Session, m: dict) -> dict:
+    """The taxonomy record with people's alternate-source decisions applied (newest decision per country wins).
+    A country with no decision keeps the status in the data file, which earns no credit unless it says 'qualified'."""
+    rows = db.execute(select(M.AlternateSourceReview).where(M.AlternateSourceReview.material_id == m["id"])
+                      .order_by(M.AlternateSourceReview.id)).scalars().all()
+    if not rows:
+        return m
+    latest = {r.country: r for r in rows}
+    out = dict(m)
+    out["alternative_sources"] = []
+    for a in m["alternative_sources"]:
+        a = dict(a)
+        r = latest.get(a["country"])
+        if r:
+            a["qualification_status"] = r.status
+            a["included_in_n_alt"] = r.status == "qualified"
+        out["alternative_sources"].append(a)
+    return out
+
+
+def verification_status(db: Session) -> dict:
+    """How many materials have each data group checked against the published table by a person."""
+    rows = db.execute(select(M.DataVerification.material_id, M.DataVerification.data_group, M.DataVerification.outcome)).all()
+    done = {}
+    for mid, grp, _ in rows:
+        done.setdefault(mid, set()).add(grp)
+    n = len(taxonomy.MATERIALS)
+    full = sum(1 for mid in taxonomy.MATERIALS if {"import", "production"} <= done.get(mid, set()))
+    reviews = db.execute(select(M.AlternateSourceReview.material_id, M.AlternateSourceReview.country, M.AlternateSourceReview.status)
+                         .order_by(M.AlternateSourceReview.id)).all()
+    latest = {(a, b): c for a, b, c in reviews}
+    qualified = sorted({a for (a, b), c in latest.items() if c == "qualified"})
+    return {"materials": n, "import_and_production_checked": full, "materials_with_qualified_alternate": len(qualified),
+            "by_group": {g: sum(1 for v in done.values() if g in v) for g in ("import", "production", "processing")}}
+
+
 def publish_all(db: Session, today: dt.date | None = None) -> dict:
     """Idempotent: a material whose payload hash is unchanged gets no new snapshot."""
     today = today or dt.date.today()
@@ -123,7 +159,9 @@ def publish_all(db: Session, today: dt.date | None = None) -> dict:
     created, unchanged = [], []
     tail = db.execute(select(M.ScoreSnapshot.digest).where(M.ScoreSnapshot.digest.is_not(None))
                       .order_by(M.ScoreSnapshot.id.desc()).limit(1)).scalar() or chain.GENESIS
+    changes = []
     for mid, m in taxonomy.MATERIALS.items():
+        m = reviewed_material(db, m)
         events = active_events(db, mid)
         stages = [e["stage"] for e in events]
         payload = build_payload(m, events)
@@ -154,10 +192,26 @@ def publish_all(db: Session, today: dt.date | None = None) -> dict:
         if cur:
             cur.superseded_at = M.now()
             _raise_watch_events(db, cur, snap)
+            ch = material_change(cur, snap)
+            if ch:
+                changes.append(ch)
         created.append(mid)
     db.commit()
     sector_scores(db)
-    return {"created": created, "unchanged": unchanged}
+    return {"created": created, "unchanged": unchanged, "changes": changes}
+
+
+def material_change(old: M.ScoreSnapshot, new: M.ScoreSnapshot) -> dict | None:
+    """A change worth telling subscribers about: a new tier or a move of SCORE_MOVE_ALERT points or more.
+    Indicative (grade C) data raises no alerts unless the deployment turns that on, as for watchlists."""
+    if new.grade == "C" and not settings.indicative_alerts:
+        return None
+    moved = abs(sc.round_score(new.composite) - sc.round_score(old.composite))
+    if new.tier == old.tier and moved < SCORE_MOVE_ALERT:
+        return None
+    return {"material_id": new.material_id, "name": taxonomy.MATERIALS[new.material_id]["name"], "from_score": sc.round_score(old.composite),
+            "to_score": sc.round_score(new.composite), "from_tier": old.tier, "to_tier": new.tier, "snapshot_id": new.id,
+            "tier_changed": new.tier != old.tier}
 
 
 def _raise_watch_events(db: Session, old: M.ScoreSnapshot, new: M.ScoreSnapshot) -> None:

@@ -194,6 +194,60 @@ class QuarantinedDocument(Base):
     reasons: Mapped[list] = mapped_column(JSON)
 
 
+class AlertSubscription(Base):
+    """Opt-in tier-change alerts to a Slack or Teams webhook, or to an email address. The target is a contact detail,
+    so it is stored only for this purpose, confirmed before use, and removed by the manage link or after repeated failures."""
+    __tablename__ = "alert_subscription"
+    __table_args__ = (UniqueConstraint("channel", "target_hash", name="uq_alert_target"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    channel: Mapped[str] = mapped_column(String(8))                   # slack | teams | email
+    target: Mapped[str] = mapped_column(String(600))
+    target_hash: Mapped[str] = mapped_column(String(64), index=True)
+    material_ids: Mapped[list] = mapped_column(JSON)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+    confirm_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    manage_token_hash: Mapped[str] = mapped_column(String(64), index=True)
+    failures: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=now)
+    last_sent_at: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class AlternateSourceReview(Base):
+    """A person's decision that a producing country is (or is not) a qualified alternate source, with evidence.
+    The newest row per material and country wins. Only 'qualified' earns credit in N_eff (paper Section III-B)."""
+    __tablename__ = "alternate_source_review"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    material_id: Mapped[str] = mapped_column(ForeignKey("material.id"), index=True)
+    country: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16))                   # qualified | unqualified
+    evidence_url: Mapped[str] = mapped_column(String(512))
+    evidence_note: Mapped[str] = mapped_column(String(1000))
+    reviewer: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=now)
+
+
+class DataVerification(Base):
+    """A person compared one group of figures with the published table and recorded the outcome."""
+    __tablename__ = "data_verification"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    material_id: Mapped[str] = mapped_column(ForeignKey("material.id"), index=True)
+    data_group: Mapped[str] = mapped_column(String(16))               # import | production | processing
+    source_doc: Mapped[str] = mapped_column(String(300))              # document, edition and page or table
+    outcome: Mapped[str] = mapped_column(String(16))                  # matched | corrected
+    note: Mapped[str] = mapped_column(String(1000), default="")
+    reviewer: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=now)
+
+
+class BenchmarkSubmission(Base):
+    """Opt-in, anonymous. A sector label and a rounded score. No session, name, address or BOM content."""
+    __tablename__ = "benchmark_submission"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    sector: Mapped[str] = mapped_column(String(32), index=True)
+    score: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=now)
+
+
 # ---- append-only guard for the snapshot log (claim 5): rows are never deleted, and only superseded_at may change
 from sqlalchemy import event, inspect as _inspect
 

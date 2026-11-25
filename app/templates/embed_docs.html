@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Embed a score{% endblock %}
+{% block main %}
+<h1>Embed a material's score</h1>
+<p>Add a small score card to an intranet page or supplier-risk dashboard. It shows the public market-level score, tier and range. It has no scripts and sets no cookies.</p>
+<pre class="card"><code>&lt;iframe src="{{ base }}/embed/materials/gallium" title="Gallium supply exposure" width="360" height="170" style="border:0" loading="lazy"&gt;&lt;/iframe&gt;</code></pre>
+<p>Replace <code>gallium</code> with: {% for k,n in materials %}<code>{{ k }}</code>{{ ', ' if not loop.last }}{% endfor %}.</p>
+<p>For dashboards that prefer data, use the JSON API: <code>GET /api/v1/materials/&lt;id&gt;</code> (CORS enabled, rate limited), or <code>GET /api/v1/materials.csv</code>.</p>
+{% endblock %}

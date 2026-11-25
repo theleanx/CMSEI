@@ -8,6 +8,8 @@
 <tr><th scope="row">Launch status</th><td>{{ st.launch_status|capitalize }}</td></tr>
 <tr><th scope="row">Event layer</th><td>{{ st.event_layer }}</td></tr>
 <tr><th scope="row">Data vintage</th><td>{{ st.data_vintage }}</td></tr>
+<tr><th scope="row">Maintainer</th><td>{{ settings.maintainer_name }} ({{ settings.maintainer_role }}). <a href="/governance">Governance</a></td></tr>
+<tr><th scope="row">Checked by a person</th><td>{{ st.verification.import_and_production_checked }} of {{ st.verification.materials }} materials have import and production figures compared with the published table; {{ st.verification.materials_with_qualified_alternate }} have a qualified alternate source.</td></tr>
 <tr><th scope="row">Published snapshots</th><td>{{ st.published_snapshots }}</td></tr>
 <tr><th scope="row">Snapshot log</th><td>{% if st.snapshot_log.intact %}Intact: {{ st.snapshot_log.entries }} chained entries, each linked to the one before and each score regenerated from its stored inputs.{% else %}<strong>Broken at snapshot {{ st.snapshot_log.first_break_snapshot_id }}.</strong> Do not rely on scores until a maintainer has checked.{% endif %}</td></tr>
 <tr><th scope="row">Newest snapshot</th><td>{{ st.newest_snapshot_at or 'none' }}</td></tr>

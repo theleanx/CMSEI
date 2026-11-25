@@ -1,0 +1,129 @@
+{
+ "registry_version": "shocks-1",
+ "formula_version": "1.1",
+ "source_vintage": "USGS MCS 2024",
+ "n_materials": 19,
+ "n_positive": 6,
+ "positives": [
+  "bismuth",
+  "cobalt",
+  "gallium",
+  "indium",
+  "nickel",
+  "rare-earths"
+ ],
+ "seed": 20261124,
+ "n_boot": 5000,
+ "n_perm": 20000,
+ "results": {
+  "cmsei": {
+   "label": "CMSEI composite (official, no events)",
+   "auc": 0.744,
+   "ci95": [
+    0.487,
+    0.949
+   ],
+   "p_one_sided": 0.0506,
+   "ranks_of_positives": {
+    "bismuth": 4,
+    "cobalt": 8,
+    "gallium": 3,
+    "indium": 10,
+    "nickel": 14,
+    "rare-earths": 2
+   }
+  },
+  "top_producer_share": {
+   "label": "Top producer's world share",
+   "auc": 0.846,
+   "ci95": [
+    0.641,
+    1.0
+   ],
+   "p_one_sided": 0.0088,
+   "ranks_of_positives": {
+    "bismuth": 4,
+    "cobalt": 5,
+    "gallium": 1,
+    "indium": 7,
+    "nickel": 10,
+    "rare-earths": 6
+   }
+  },
+  "production_hhi": {
+   "label": "World-production HHI",
+   "auc": 0.821,
+   "ci95": [
+    0.603,
+    1.0
+   ],
+   "p_one_sided": 0.0145,
+   "ranks_of_positives": {
+    "bismuth": 4,
+    "cobalt": 5,
+    "gallium": 1,
+    "indium": 7,
+    "nickel": 12,
+    "rare-earths": 6
+   }
+  },
+  "import_hhi": {
+   "label": "US import HHI",
+   "auc": 0.519,
+   "ci95": [
+    0.192,
+    0.821
+   ],
+   "p_one_sided": 0.4562,
+   "ranks_of_positives": {
+    "bismuth": 2,
+    "cobalt": 17,
+    "gallium": 13,
+    "indium": 14,
+    "nickel": 11,
+    "rare-earths": 1
+   }
+  }
+ },
+ "sensitivity": {
+  "all labels": {
+   "n_positive": 6,
+   "n": 19,
+   "cmsei": 0.744,
+   "top_producer_share": 0.846,
+   "production_hhi": 0.821,
+   "import_hhi": 0.519
+  },
+  "without nickel (ore ban)": {
+   "n_positive": 5,
+   "n": 18,
+   "cmsei": 0.815,
+   "top_producer_share": 0.877,
+   "production_hhi": 0.877,
+   "import_hhi": 0.546
+  },
+  "China-imposed only": {
+   "n_positive": 4,
+   "n": 17,
+   "cmsei": 0.846,
+   "top_producer_share": 0.885,
+   "production_hhi": 0.885,
+   "import_hhi": 0.644
+  }
+ },
+ "cmsei_minus_top_producer_share": {
+  "auc_difference": -0.102,
+  "ci95": [
+   -0.282,
+   0.051
+  ]
+ },
+ "reading": "6 of 19 materials had a documented export restriction. The index ranks them with AUC 0.744 (95% interval 0.487 to 0.949), which does not clearly exceed chance (0.5). The index does no better than the plain top-producer-share baseline in this sample, and the interval for the difference includes zero.",
+ "limits": [
+  "Sample is tiny: a handful of positives. Intervals are wide and a single material can move the result.",
+  "The registry is not an exhaustive search, so some negatives may be mislabelled.",
+  "The index uses 2023 production and 2019-22 import tables that are unverified transcriptions. Nickel's restriction (2020) predates the data.",
+  "The test checks ranking only. It says nothing about timing or size of any disruption.",
+  "Labels were built after the index design, with knowledge of the result. This is a pilot, not an out-of-sample test."
+ ]
+}

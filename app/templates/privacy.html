@@ -14,8 +14,14 @@
 <ul>
 <li>The text you type to describe a material. It is used once, in memory, to find the category. It is not written to the database or to application logs.</li>
 <li>Your sourcing region and volume. They choose which suggestions are shown and are not stored.</li>
-<li>Your name, email, company or account. There are none.</li>
+<li>Your name, email, company or account. There are none, unless you choose email alerts (below).</li>
+<li><strong>Parts lists you upload.</strong> The file is read in memory for one request and discarded. It is not written to disk or the database, and its contents are not logged. Part numbers, supplier names and spend never reach the database.</li>
 <li>Application logs hold only the method, route, status code and timing. They do not hold query strings, request bodies or IP addresses.</li>
+</ul>
+<h2>Optional features that store something</h2>
+<ul>
+<li><strong>Alerts.</strong> If you subscribe, the Slack or Teams webhook address (or email address) and the materials you chose are stored until you delete the subscription with its manage link, it fails 5 sends in a row, or (if unconfirmed) 7 days pass. The manage link is stored only as a hash.</li>
+<li><strong>Peer comparison.</strong> If you tick the box, one row is stored: a sector and a rounded score. No session, name, address or file content is attached. Comparisons are shown only when at least 10 results exist for the sector.</li>
 </ul>
 <h2>What this does not cover</h2>
 <ul>

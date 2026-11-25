@@ -4,7 +4,7 @@ import logging
 from ..db import engine, Base, SessionLocal
 from .. import models  # noqa: F401
 from ..logging_setup import setup
-from ..services import snapshots as S, sessions
+from ..services import snapshots as S, sessions, alerts
 from . import monitor
 
 
@@ -23,7 +23,7 @@ def main(argv):
                 if step == "publish":
                     with monitor.job(db, "publish") as jr:
                         r = S.publish_all(db)
-                        jr.detail = {"created": len(r["created"]), "unchanged": len(r["unchanged"])}
+                        jr.detail = {"created": len(r["created"]), "unchanged": len(r["unchanged"]), "alerts": alerts.dispatch(db, r.get("changes", []))}
                 elif step == "monitor":
                     monitor.run_monitor(db)
                 elif step == "reverify":
@@ -31,7 +31,7 @@ def main(argv):
                         jr.detail = monitor.reverify(db)
                 elif step == "housekeeping":
                     with monitor.job(db, "housekeeping") as jr:
-                        jr.detail = {"sessions_purged": sessions.purge_expired(db)}
+                        jr.detail = {"sessions_purged": sessions.purge_expired(db), "alerts_purged": alerts.purge(db)}
                 else:
                     log.error("unknown job %s", step)
                     return 2

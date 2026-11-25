@@ -18,7 +18,15 @@ import json
 import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = json.loads((ROOT / "data" / "source_mcs2024.json").read_text())
+import argparse
+_ap = argparse.ArgumentParser()
+_ap.add_argument("--source", default="data/source_mcs2024.json", help="source file in the same layout as data/source_mcs2024.json")
+_ap.add_argument("--out", default="data/material_categories.json")
+_args = _ap.parse_args()
+SRC = json.loads((ROOT / _args.source).read_text())
+# Edition and years come from the source file's optional "edition" block. Absent means the 2024 edition, so the shipped file rebuilds unchanged.
+ED = {"mcs_edition": 2024, "production_year": 2023, "import_period": "2019-22", "import_year": 2022}
+ED.update(SRC.get("edition", {}))
 
 COUNTRY = {
     "SouthAfrica": "South Africa", "SaudiArabia": "Saudi Arabia", "NewCaledonia": "New Caledonia",
@@ -129,7 +137,7 @@ def main():
             proc_hhi = raw_hhi
             proc_info = {"grade": "C", "basis": "mining_proxy", "country": dom, "top_share": prod_sh[0]["share"],
                          "note": "No processing-stage shares loaded. Production shares stand in for both terms of P (spec 4.8, grade C: Indicative).",
-                         "source": "USGS MCS 2024, world production table", "data_year": 2023}
+                         "source": f"USGS MCS {ED['mcs_edition']}, world production table", "data_year": ED["production_year"]}
         alts = []
         for x in prod_sh[1:]:
             alts.append({"country": x["country"], "global_share": round(x["share"], 2),
@@ -138,17 +146,17 @@ def main():
         mats.append({
             "id": mid, "name": name, "group": group, "synonyms": SYN[mid], "trade_codes": [],
             "dominant_country": dom, "dominant_import_country": imp_sh[0]["country"],
-            "import": {"form": imp["form"], "period": "2019-22", "shares": imp_sh, "other_share": imp_other,
-                       "hhi": imp_hhi, "grade": "B", "data_year": 2022},
-            "production": {"year": 2023, "shares": prod_sh, "other_share": prod_other, "hhi": raw_hhi, "grade": "B",
-                           "data_year": 2023},
+            "import": {"form": imp["form"], "period": ED["import_period"], "shares": imp_sh, "other_share": imp_other,
+                       "hhi": imp_hhi, "grade": "B", "data_year": ED["import_year"]},
+            "production": {"year": ED["production_year"], "shares": prod_sh, "other_share": prod_other, "hhi": raw_hhi, "grade": "B",
+                           "data_year": ED["production_year"]},
             "raw_hhi_baseline": raw_hhi, "processing_hhi_baseline": round(proc_hhi, 1), "processing": proc_info,
             "nir": SRC["nir"][mid],
             "alternative_sources": alts,
             "substitution_difficulty": 1.0, "d_status": "estimated",
             "evidence": [
-                {"kind": "usgs", "label": f"USGS Mineral Commodity Summaries 2024, {name}",
-                 "url": f"https://pubs.usgs.gov/periodicals/mcs2024/mcs2024-{mid}.pdf",
+                {"kind": "usgs", "label": f"USGS Mineral Commodity Summaries {ED['mcs_edition']}, {name}",
+                 "url": f"https://pubs.usgs.gov/periodicals/mcs{ED['mcs_edition']}/mcs{ED['mcs_edition']}-{mid}.pdf",
                  "tables": "Salient Statistics (import sources, net import reliance); World Production table"},
             ] + ([{"kind": "iea", "label": proc["source"],
                    "url": "https://iea.blob.core.windows.net/assets/afc35261-41b2-47d4-86d6-d5d77fc259be/CriticalMineralsMarketReview2023.pdf",
@@ -157,9 +165,9 @@ def main():
             "review": {"signed_off_by": None, "signed_off_at": None},
             "taxonomy_note": "Net import reliance is shown for context only and is not a scoring input.",
         })
-    out = {"taxonomy_version": "2026.11-preview.1", "formula_version": "1.1", "source_vintage": "USGS MCS 2024",
+    out = {"taxonomy_version": "2026.11-preview.1", "formula_version": "1.1", "source_vintage": f"USGS MCS {ED['mcs_edition']}",
            "source_note": SRC["transcription_note"], "materials": mats}
-    (ROOT / "data" / "material_categories.json").write_text(json.dumps(out, indent=1))
+    (ROOT / _args.out).write_text(json.dumps(out, indent=1))
 
     rcm = {"region_names": REGION_NAMES, "countries": [{"country": c, "region_code": r, "region_name": REGION_NAMES[r]}
                                                         for c, r in sorted(REGION_OF.items())]}

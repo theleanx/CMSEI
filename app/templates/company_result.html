@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Your supply exposure screen{% endblock %}
+{% block main %}
+{% set s = r.summary %}
+<h1>Supply exposure screen{% if company_name %}: {{ company_name }}{% endif %}</h1>
+<p class="small">Market scores as of {{ r.as_of }}, applied to your parts list. Nothing from your file was stored.</p>
+{% if s.headline %}<div class="card"><h2>Headline</h2><p><strong>{{ s.headline }}</strong></p></div>{% endif %}
+<div class="card"><h2>What matched</h2>
+<p>{{ s.mapped_rows }} of {{ s.rows }} parts matched a tracked material, across {{ s.products }} products and {{ s.suppliers }} suppliers.{% if s.has_spend %} Spend on matched parts: ${{ '{:,.0f}'.format(s.spend_mapped) }} of ${{ '{:,.0f}'.format(s.spend_total) }}; ${{ '{:,.0f}'.format(s.spend_high_or_critical) }} of it sits in High or Critical parts.{% endif %}</p>
+{% if s.top_supplier_in_high_spend %}<p>Largest supplier of High or Critical spend: <strong>{{ s.top_supplier_in_high_spend.supplier }}</strong> ({{ (s.top_supplier_in_high_spend.share*100)|round|int }}%).</p>{% endif %}
+{% if s.unmapped_rows %}<p class="small">{{ s.unmapped_rows }} parts did not match any tracked material{% if r.unmapped_sample %} (for example {{ r.unmapped_sample[:8]|join(', ') }}){% endif %}. Add a <code>minerals</code> column to include them.</p>{% endif %}
+{% for w in r.warnings %}<p class="small">{{ w }}</p>{% endfor %}
+{% if r.indicative_materials %}<p class="note warn"><strong>Indicative data.</strong> Scores for {{ r.indicative_materials|join(', ') }} rest on grade C data. Use them to decide where to look first, not to decide.</p>{% endif %}
+</div>
+
+<h2>Products, most exposed first</h2>
+<div class="tablewrap"><table class="plain data"><caption class="vh">Products</caption><thead><tr><th scope="col">Product</th><th scope="col">Score</th><th scope="col">Tier</th><th scope="col">Driven by</th><th scope="col">Parts in High/Critical</th>{% if s.has_spend %}<th scope="col">Spend in High/Critical</th>{% endif %}</tr></thead><tbody>
+{% for p in r.products[:30] %}<tr><th scope="row">{{ p.name }}</th><td class="num">{{ p.score }}</td><td><span class="chip {{ tier_class[p.tier] }}">{{ p.tier }}</span></td><td>{{ p.driver_name }}</td><td>{{ p.high_parts }} of {{ p.dependent_parts }} dependent ({{ p.total_parts }} total)</td>{% if s.has_spend %}<td>{{ '' if p.spend_high_share is none else ((p.spend_high_share*100)|round|int ~ '%') }}</td>{% endif %}</tr>{% endfor %}</tbody></table></div>
+
+<h2>Suppliers</h2>
+<div class="tablewrap"><table class="plain data"><caption class="vh">Suppliers</caption><thead><tr><th scope="col">Supplier</th><th scope="col">Score</th><th scope="col">Tier</th><th scope="col">Driven by</th><th scope="col">Dependent parts</th>{% if s.has_spend %}<th scope="col">Spend</th>{% endif %}</tr></thead><tbody>
+{% for p in r.suppliers[:30] %}<tr><th scope="row">{{ p.name }}</th><td class="num">{{ p.score }}</td><td><span class="chip {{ tier_class[p.tier] }}">{{ p.tier }}</span></td><td>{{ p.driver_name }}</td><td>{{ p.dependent_parts }}</td>{% if s.has_spend %}<td>${{ '{:,.0f}'.format(p.spend) }}</td>{% endif %}</tr>{% endfor %}</tbody></table></div>
+
+<h2>Materials in your list</h2>
+<div class="tablewrap"><table class="plain data"><caption class="vh">Materials</caption><thead><tr><th scope="col">Material</th><th scope="col">Market score</th><th scope="col">Tier</th><th scope="col">Parts</th><th scope="col">Origin: dominant / other / not declared</th></tr></thead><tbody>
+{% for m in r.materials %}<tr><th scope="row"><a href="/materials/{{ m.id }}">{{ m.name }}</a></th><td class="num">{{ m.score }}</td><td><span class="chip {{ tier_class[m.tier] }}">{{ m.tier }}</span></td><td>{{ m.parts }}</td><td>{{ m.declared_dominant }} / {{ m.declared_other }} / {{ m.undeclared }}</td></tr>{% endfor %}</tbody></table></div>
+<p class="small">"Dominant" means the supplier says the material comes from the top world producer or the top source of US imports. Declared origin is the supplier's word and is not checked. Parts with no declared origin can only be cleared by asking: use the supplier questionnaire.</p>
+
+{% if r.scenario %}{% set x = r.scenario %}
+<div class="card sim"><h2>What if: {{ x.material_name }} supply cut{% if x.country %} by {{ x.country }}{% endif %} ({{ 'full cut-off' if x.cut == 'full' else 'partial cut' }})</h2>
+<p><span class="chip">Simulated</span> Market score {{ x.market_before.score }} ({{ x.market_before.tier }}) becomes {{ x.market_after.score }} ({{ x.market_after.tier }}).</p>
+<p>Parts: {{ x.parts.direct }} directly affected{% if x.country %}, {{ x.parts.unknown }} with no declared origin, {{ x.parts.other }} declared from elsewhere{% endif %}.</p>
+{% if x.products_hit %}<div class="tablewrap"><table class="plain data"><caption class="vh">Products hit</caption><thead><tr><th scope="col">Product</th><th scope="col">Parts direct</th><th scope="col">Origin unknown</th><th scope="col">Score before</th><th scope="col">Score after</th></tr></thead><tbody>
+{% for p in x.products_hit %}<tr><th scope="row">{{ p.name }}</th><td>{{ p.parts_direct }}</td><td>{{ p.parts_unknown_origin }}</td><td>{{ p.score_before }} ({{ p.tier_before }})</td><td>{{ p.score_after }} ({{ p.tier_after }})</td></tr>{% endfor %}</tbody></table></div>{% else %}<p>None of your products use this material.</p>{% endif %}
+{% if x.cost %}<p><strong>Cost at your assumed {{ x.cost.price_shock_pct|round(1) }}% price rise:</strong> ${{ '{:,.0f}'.format(x.cost.low) }} to ${{ '{:,.0f}'.format(x.cost.high) }} a year (low counts parts declared from the cutting country; high adds parts with no declared origin). {{ x.cost.note }}</p>{% endif %}
+<p class="small">{{ x.note }}</p></div>{% endif %}
+
+{% if r.compliance %}<h2>Compliance screen</h2>
+<p class="note warn">A prompt for questions, not legal advice and not a finding of compliance. Rules were compiled from public sources and have not been reviewed by counsel. <a href="/compliance">Rules and sources</a>.</p>
+{% for c in r.compliance %}<div class="card"><h3>{{ c.title }} <span class="small">({{ c.regime }})</span></h3>
+<p class="small">Applies to you: <strong>{{ c.applies }}</strong>. {{ c.applies_when }}</p>
+<p>{{ c.parts_in_scope }} of your parts are in scope. Declared in a covered country: <strong>{{ c.counts.declared_covered }}</strong>. Country not declared: <strong>{{ c.counts.undeclared }}</strong>. Declared elsewhere: {{ c.counts.declared_clear }}.</p>
+{% for u in c.upcoming %}<p class="note warn"><strong>{{ u.date }}{% if u.days is not none %} ({{ u.days }} days){% endif %}:</strong> {{ u.what }}</p>{% endfor %}
+<p class="small">{{ c.scope_note }} {{ c.meaning }}</p>
+{% if c.parts %}<details><summary>Parts to look at ({{ c.parts|length }}{{ '+' if c.parts|length >= 50 else '' }})</summary><ul>{% for p in c.parts %}<li>{{ p.part }} · {{ p.supplier }} · {{ 'covered country declared' if p.status == 'declared_covered' else 'country not declared' }}</li>{% endfor %}</ul></details>{% endif %}
+</div>{% endfor %}{% endif %}
+
+{% if bench %}<div class="card"><h2>Compared with peers ({{ bench.sector }})</h2>
+{% if bench.available %}<p>Your most exposed product ({{ bench.score }}) is higher than {{ bench.percentile }}% of {{ bench.n }} results shared for this sector. {{ bench.note }}</p>
+{% else %}<p>Not enough shared results yet to show a comparison ({{ bench.n }} of the {{ bench.needed }} needed). Nothing is shown below that number so no single company can be picked out.</p>{% endif %}
+{% if bench.shared %}<p class="small">Your score was added anonymously: sector and score only.</p>{% endif %}</div>{% endif %}
+
+<div class="card"><h2>Next steps</h2>
+<p>To get the PDF, CSV or supplier questionnaire, <a href="/company">upload the file again</a> and pick the output. To send the questionnaire to suppliers, fill the answers back into the origin and processing columns and run it again.</p>
+<p class="small">{{ r.method }} The back-test is on the <a href="/validation">Validation</a> page: the index does not beat simple concentration measures.</p></div>
+{% endblock %}

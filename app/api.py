@@ -108,6 +108,7 @@ def data_status(db: Session) -> dict:
         "data_vintage": taxonomy.SOURCE_VINTAGE, "taxonomy_version": taxonomy.TAXONOMY_VERSION, "formula_version": sc.FORMULA_VERSION,
         "snapshot_log": log, "published_snapshots": snaps, "newest_snapshot_at": newest.isoformat() + "Z" if newest else None,
         "quarantined_documents": quarantined, "held_events": held, "held_alert": held > 5, "event_feed_stale": feed_stale, "jobs": last,
+        "maintainer": {"name": settings.maintainer_name, "role": settings.maintainer_role}, "verification": S.verification_status(db),
         "transcription": "USGS figures were read through a page reader and have not been checked against the PDFs by a person.",
         "caps": {"claude_daily_calls": settings.claude_daily_call_cap, "claude_monthly_calls": settings.claude_monthly_call_cap},
     }
@@ -127,7 +128,7 @@ def methodology():
                     "base": "0.3 C + 0.4 P + 0.3 S", "G": "1.0 + sum of active event effects, capped at 1.5", "composite": "min(100, base * G)"},
         "event_effects": sc.EFFECT, "tiers": {"Low": "0-30", "Moderate": "above 30 to 60", "High": "above 60 to 80", "Critical": "above 80 to 100"},
         "validation": {"status": "Not validated as a predictor. Backtests found the index does not beat world-production concentration alone.",
-                       "details": "See the Methodology page and the replication package."},
+                       "details": "See /validation and /api/v1/validation for the latest back-test, its labels and sources."},
         "limits": ["Figures are transcribed from USGS MCS 2024 tables and are unverified.",
                    "Processing-stage shares exist for cobalt and rare earths only (top supplier). Other materials use production shares (grade C, Indicative).",
                    "No alternate source has been verified by a person, so none earns credit. The score with every listed producer credited is shown as a sensitivity.",

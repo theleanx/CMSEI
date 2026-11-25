@@ -41,9 +41,20 @@ Worked example: C 81.52, P 69.4, S 65, G 1.08 → 77.45, High.
 | Event monitor (fetch, extract, gate, hold queue, decay, re-verify) | `app/worker/` |
 | Data and taxonomy | `data/`, `scripts/build_taxonomy.py` |
 | Migrations | `migrations/` |
-| Tests (128) | `tests/` |
+| Company layer: parts-list upload, roll-up, what-if, supplier questionnaire, compliance screen, peer benchmark | `app/engine/bom.py`, `app/engine/compliance.py`, `app/services/company.py`, `app/company.py` |
+| Alerts to Slack, Teams or email | `app/services/alerts.py` |
+| Back-test against documented export restrictions | `app/engine/validation.py`, `data/shocks.json`, `scripts/backtest_shocks.py` |
+| Double-entry data check, data refresh procedure | `scripts/verify_transcription.py`, `docs/DATA-REFRESH.md` |
+| Governance, SAP export guide, outreach kit | `GOVERNANCE.md`, `MAINTAINERS.md`, `docs/` |
+| Tests (177) | `tests/` |
 
 This build uses FastAPI with server-rendered pages, not Next.js. It is one deployable service, which keeps the privacy and security surface small.
+
+## For manufacturers: your own parts list
+
+`/company` takes a CSV and shows which products and suppliers lean on which materials, with an optional what-if (for example "China cuts gallium"), a supplier questionnaire, a compliance screen (DFARS magnets and tantalum, conflict minerals, UFLPA sectors) and a PDF. The file is processed in memory and never stored (a test checks the database and logs). The roll-up is a screening heuristic: a part takes the highest score of its materials, and a product takes the highest of its parts. It is not part of the validated index. The same functions are on the API (`POST /api/v1/company/analyze`, CSV body). SAP headers are recognized; see `docs/SAP-EXPORT.md`. No live SAP connector exists. Tariff exposure by HTS code is not built.
+
+**Validation.** The back-test at `/validation` puts the index at AUC 0.74 (95% interval 0.49 to 0.95) against 0.85 for the top producer's share, so it does not beat a simple concentration measure. That is published as found.
 
 ## Patent-relevant behaviour, and where it lives
 
@@ -94,15 +105,18 @@ The container runs `alembic upgrade head` on start. Postgres has not been exerci
 | `CLAUDE_DAILY_CALL_CAP`, `CLAUDE_MONTHLY_CALL_CAP` | Hard spend caps, counted in the database | 200, 3000 |
 | `PUBLISH_EVENTS` | Let confirmed events change scores | `false` |
 | `LAUNCH_STATUS` | `preview` shows the banner | `preview` |
-| `RATE_PER_MINUTE_IP`, `RATE_ASSESS_PER_MINUTE_IP` | In-process rate limits | 60, 20 |
+| `RATE_PER_MINUTE_IP`, `RATE_ASSESS_PER_MINUTE_IP` | In-process rate limits (uploads, alerts and assessments use the second) | 60, 20 |
+| `MAINTAINER_NAME`, `MAINTAINER_ROLE` | Shown on Status, Governance and PDFs | Ankit (GitHub: theleanx) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_STARTTLS` | Turns on email alerts. Slack and Teams alerts need none | empty |
+| `MAX_BENCHMARK_PER_DAY` | Cap on peer-comparison submissions per day | 200 |
 
 Rate limits are in-process, so run one worker (the Dockerfile does). Put a CDN or the platform's limiter in front for real abuse protection.
 
 ## What a maintainer must do
 
-1. Check every figure in `data/source_mcs2024.json` against the USGS PDFs and sign off each material in `/admin`.
-2. Replace the 2024 data with the current MCS and refresh yearly.
-3. Review alternate-source qualification and the substitution factor D. Both are placeholders.
+1. Replace the 2024 data with MCS 2026 (`docs/DATA-REFRESH.md`). From January 2027 the staleness rule makes every score Indicative.
+2. Have a second person check every figure (`scripts/verify_transcription.py`), record it under "Data checks" in `/admin`, then sign off each material.
+3. Record alternate-source decisions with evidence in `/admin`, and review the substitution factor D. Both are placeholders until someone does.
 4. Run the event-layer go-live test before enabling `PUBLISH_EVENTS`.
 5. Review the held-event queue within 72 hours of each alert, or events expire.
 6. Get the terms, privacy notice, disclaimer and licence reviewed by counsel.

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Your parts list{% endblock %}
+{% block main %}
+<h1>Screen your own parts list</h1>
+<p class="lead">Upload a parts list (CSV). The platform matches parts to the {{ materials|length }} tracked materials and shows which products and suppliers lean on the most exposed ones.</p>
+<div class="card"><h2>Your file is not kept</h2>
+<p>The file is read in memory to build this one answer and is then discarded. It is not written to disk or the database, and its contents are not logged. Because nothing is kept, each download (PDF, CSV) is a fresh upload. Prefer to keep it on your own network? Run the open-source platform yourself: <a href="https://github.com/theleanx/CMSEI">github.com/theleanx/CMSEI</a>.</p></div>
+{% if error %}<p class="note warn" role="alert"><strong>Could not read that file.</strong> {{ error }}</p>{% endif %}
+<form method="post" action="/company/analyze" enctype="multipart/form-data" class="card">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<h2>1. File</h2>
+<label for="file">Parts list (CSV, up to {{ max_mb }} MB, {{ '{:,}'.format(max_rows) }} rows)</label>
+<input id="file" name="file" type="file" accept=".csv,text/csv,text/plain" required>
+<p class="small">Needs a part number column and either a <code>minerals</code> column (for example <code>rare-earths; gallium</code>) or a <code>description</code> column. Optional: product, supplier, annual spend, origin country, processing country. SAP headers such as MATNR, IDNRK, MAKTX, LIFNR and HERKL are recognized. <a href="/company/template.csv">Download the template</a>.</p>
+<h2>2. What you do (optional, makes the compliance screen more specific)</h2>
+<label for="dod">Do you deliver to the US Department of Defense, directly or as a subcontractor?</label>
+<select id="dod" name="sells_to_dod"><option value="">Not stated</option><option value="yes">Yes</option><option value="no">No</option></select>
+<label for="sec">Do you file reports with the SEC?</label>
+<select id="sec" name="sec_filer"><option value="">Not stated</option><option value="yes">Yes</option><option value="no">No</option></select>
+<h2>3. What if (optional)</h2>
+<p class="small">Pick a material to see what a supply cut would do to your products. Add a country to separate parts your suppliers say come from there.</p>
+<label for="sm">Material</label>
+<select id="sm" name="scenario_material"><option value="">No what-if</option>{% for k,n in materials %}<option value="{{ k }}">{{ n }}</option>{% endfor %}</select>
+<label for="sc">Country that cuts supply (optional, for example China)</label><input id="sc" name="scenario_country" type="text" maxlength="64">
+<label for="cut">Size of the cut</label>
+<select id="cut" name="scenario_cut"><option value="full">Full cut-off</option><option value="partial">Partial cut (licensing)</option></select>
+<label for="psp">Price rise you want to assume, in percent (optional)</label><input id="psp" name="price_shock_pct" type="text" inputmode="decimal" maxlength="8">
+<p class="small">The platform has no price data. The cost shown is your assumption times your spend on affected parts.</p>
+<h2>4. Output</h2>
+<label for="out">Show</label>
+<select id="out" name="output"><option value="screen">On screen</option><option value="pdf">Board-ready PDF</option><option value="parts_csv">Parts exposure CSV</option><option value="questionnaire">Supplier questionnaire CSV</option></select>
+<label for="cn">Company name for the PDF (optional)</label><input id="cn" name="company_name" type="text" maxlength="80">
+<fieldset><legend>Compare with peers (optional)</legend>
+<label for="bs">Sector</label>
+<select id="bs" name="benchmark_sector"><option value="">Skip</option>{% for k,n in sectors.items() %}<option value="{{ k }}">{{ n }}</option>{% endfor %}</select>
+<label><input type="checkbox" name="share_benchmark" value="yes"> Add my most exposed product's score to the peer pool, anonymously (sector and score only).</label></fieldset>
+<p class="actions"><button class="btn">Screen my parts</button></p>
+</form>
+{% endblock %}

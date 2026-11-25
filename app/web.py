@@ -294,6 +294,8 @@ def _static(name):
             ctx["expl"] = {e.id: explain.explain_record(e) for e in ctx["events"]}
         if name == "methodology.html":
             ctx["m"] = api_mod.methodology()
+            import json as _json
+            ctx["val"] = _json.loads((taxonomy.DATA / "validation_result.json").read_text())
         return render(request, name, ctx)
     return view
 
@@ -310,7 +312,7 @@ def robots():
 
 @router.get("/sitemap.xml")
 def sitemap():
-    urls = ["/", "/materials", "/sectors", "/methodology", "/privacy", "/terms", "/status", "/events", "/corrections", "/accessibility"] + \
+    urls = ["/", "/materials", "/sectors", "/company", "/validation", "/compliance", "/governance", "/alerts", "/embed", "/methodology", "/privacy", "/terms", "/status", "/events", "/corrections", "/accessibility"] + \
            [f"/materials/{m}" for m in taxonomy.MATERIALS]
     body = "".join(f"<url><loc>{settings.base_url}{u}</loc></url>" for u in urls)
     return Response(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>',

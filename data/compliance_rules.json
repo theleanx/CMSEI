@@ -1,0 +1,126 @@
+{
+ "version": "comp-1",
+ "last_reviewed": "2026-11-24",
+ "review_note": "Compiled from public sources on 2026-11-24 by the platform author. A screening aid, not legal advice. A lawyer or trade-compliance specialist must confirm whether a rule applies to your products and contracts. Not yet reviewed by counsel.",
+ "tariffs_note": "Tariff exposure by HTS code is not included. It needs the current USITC tariff schedule and a customs broker's classification.",
+ "rules": [
+  {
+   "id": "dfars-252.225-7052",
+   "regime": "Defense acquisition (DFARS)",
+   "title": "Restriction on certain magnets, tantalum and tungsten",
+   "applies_when": "You deliver items to the US Department of Defense, directly or as a subcontractor, and the contract includes DFARS clause 252.225-7052.",
+   "materials": [
+    "rare-earths",
+    "cobalt",
+    "tantalum"
+   ],
+   "scope_note": "The restricted items are samarium-cobalt and neodymium-iron-boron magnets, and tantalum metals and alloys (also tungsten metal powder and heavy alloy, which CMSEI does not score yet). Raw rare earth or cobalt material is relevant only where it ends up in those magnets or metals.",
+   "origin_check": "covered",
+   "covered_countries": [
+    "China",
+    "Russia",
+    "North Korea",
+    "Iran"
+   ],
+   "dates": [
+    {
+     "date": "2027-01-01",
+     "what": "The restriction extends from melting and producing to the entire supply chain, from mining of the ore or feedstock through the finished magnet or metal."
+    }
+   ],
+   "sources": [
+    {
+     "label": "DFARS 252.225-7052 (acquisition.gov)",
+     "url": "https://acquisition.gov/dfars/252.225-7052-restriction-acquisition-certain-magnets-tantalum-and-tungsten."
+    },
+    {
+     "label": "DFARS final rule, Federal Register, 30 May 2024",
+     "url": "https://www.govinfo.gov/content/pkg/FR-2024-05-30/pdf/2024-11513.pdf"
+    },
+    {
+     "label": "Crowell & Moring client alert, 21 June 2024",
+     "url": "https://www.crowell.com/en/insights/client-alerts/dod-expands-restrictions-on-supply-chain-for-certain-magnets-tantalum-and-tungsten"
+    }
+   ]
+  },
+  {
+   "id": "sec-conflict-minerals",
+   "regime": "SEC conflict minerals (Dodd-Frank section 1502)",
+   "title": "Conflict minerals disclosure (Form SD)",
+   "applies_when": "You file reports with the SEC and tin, tantalum, tungsten or gold is necessary to the functionality or production of a product you make or contract to make.",
+   "materials": [
+    "tin",
+    "tantalum"
+   ],
+   "scope_note": "Requires a reasonable country-of-origin inquiry and, where minerals may come from covered countries, due diligence and a report. Tungsten and gold are covered by the rule but not scored by CMSEI yet.",
+   "origin_check": "covered",
+   "covered_countries": [
+    "Democratic Republic of the Congo",
+    "Angola",
+    "Burundi",
+    "Central African Republic",
+    "Republic of the Congo",
+    "Rwanda",
+    "South Sudan",
+    "Tanzania",
+    "Uganda",
+    "Zambia"
+   ],
+   "dates": [
+    {
+     "date": "annual",
+     "what": "Form SD is filed each year by 31 May for the previous calendar year."
+    }
+   ],
+   "sources": [
+    {
+     "label": "SEC final rule 34-67716 (2012)",
+     "url": "https://www.sec.gov/rules/final/2012/34-67716.pdf"
+    },
+    {
+     "label": "SEC small entity compliance guide",
+     "url": "https://sec.gov/info/smallbus/secg/conflict-minerals-disclosure-small-entity-compliance-guide.htm"
+    },
+    {
+     "label": "GAO-21-531 (lists the covered countries)",
+     "url": "https://www.gao.gov/assets/gao-21-531.pdf"
+    }
+   ]
+  },
+  {
+   "id": "uflpa-high-priority",
+   "regime": "Forced-labor import enforcement (UFLPA)",
+   "title": "Uyghur Forced Labor Prevention Act, high-priority sectors",
+   "applies_when": "You import goods into the US that are mined, produced or manufactured wholly or in part in Xinjiang, or by entities on the UFLPA Entity List. Origin in China alone does not trigger it. A link to Xinjiang does.",
+   "materials": [
+    "bauxite",
+    "lithium"
+   ],
+   "scope_note": "Bauxite feeds aluminum and lithium is a listed sector. Both are designated high-priority sectors for enforcement. The list changes, so check the current DHS strategy.",
+   "origin_check": "advisory",
+   "covered_countries": [
+    "China"
+   ],
+   "dates": [
+    {
+     "date": "2024-07-09",
+     "what": "Aluminum, PVC and seafood added as high-priority sectors."
+    },
+    {
+     "date": "2025-08-19",
+     "what": "Steel, copper, lithium, caustic soda and red dates added (per STR Trade Report; confirm on the DHS site)."
+    }
+   ],
+   "sources": [
+    {
+     "label": "DHS 2024 UFLPA strategy update, news summary (USTR)",
+     "url": "https://ustr.gov/about-us/policy-offices/press-office/press-releases/2024/july/forced-labor-enforcement-task-force-publishes-updated-uyghur-forced-labor-prevention-act-strategy"
+    },
+    {
+     "label": "STR Trade Report: five more priority sectors",
+     "url": "https://www.strtrade.com/trade-news-resources/str-trade-report/august/five-more-priority-enforcement-sectors-for-forced-labor-law"
+    }
+   ]
+  }
+ ]
+}

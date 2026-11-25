@@ -1,0 +1,136 @@
+{
+ "version": "shocks-1",
+ "compiled": "2026-11-24",
+ "window": [
+  "2020-01-01",
+  "2025-12-31"
+ ],
+ "label_rule": "A material is a positive if a government in a producing country announced a licensing requirement, quota or ban on exports of that material or its main compounds in the window, and an official or law-firm source records it. Everything else in the platform is a negative.",
+ "completeness_warning": "This registry is not an exhaustive search. It was compiled from a limited set of searches on 2026-11-24. A material labelled negative may have had a restriction that was not looked for (candidates to check: magnesium, tin, bauxite, zinc, vanadium). Treat results as a pilot with a small sample.",
+ "events": [
+  {
+   "id": "ga-2023",
+   "material_id": "gallium",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2023-07-03",
+   "effective": "2023-08-01",
+   "note": "MOFCOM and GAC Announcement No. 23 of 2023: licence needed to export gallium and germanium items.",
+   "sources": [
+    {
+     "label": "Mayer Brown, 27 July 2023",
+     "url": "https://www.mayerbrown.com/en/insights/publications/2023/07/china-imposes-new-export-controls-on-two-minerals-critical-to-the-manufacture-of-semiconductors"
+    },
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/17893-announcement-on-the-implementation-of-export-control-of-items-related-to-gallium-and-germanium"
+    }
+   ]
+  },
+  {
+   "id": "co-2025",
+   "material_id": "cobalt",
+   "country": "Democratic Republic of the Congo",
+   "instrument": "export suspension, then quota",
+   "announced": "2025-02-22",
+   "effective": "2025-02-22",
+   "note": "ARECOMS Decision 001/2025 suspended cobalt exports; replaced by annual quotas from 16 October 2025.",
+   "sources": [
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/28969"
+    },
+    {
+     "label": "S&P Global, 16 Oct 2025",
+     "url": "https://www.spglobal.com/market-intelligence/en/news-insights/research/2025/10/drc-cobalt-export-quotas-to-support-cobalt-prices-though-challenges-loom"
+    }
+   ]
+  },
+  {
+   "id": "ree-2025",
+   "material_id": "rare-earths",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2025-04-04",
+   "effective": "2025-04-04",
+   "note": "MOFCOM and GAC Announcement No. 18 of 2025: seven medium and heavy rare earths (samarium, gadolinium, terbium, dysprosium, lutetium, scandium, yttrium).",
+   "sources": [
+    {
+     "label": "MOFCOM Announcement No. 18 of 2025",
+     "url": "https://english.mofcom.gov.cn/Policies/AnnouncementsOrders/art/2025/art_0dd87cbee7b045bf93fabe6ab2faceee.html"
+    },
+    {
+     "label": "CSIS analysis",
+     "url": "https://www.csis.org/analysis/consequences-chinas-new-rare-earths-export-restrictions"
+    }
+   ]
+  },
+  {
+   "id": "bi-2025",
+   "material_id": "bismuth",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2025-02-04",
+   "effective": "2025-02-04",
+   "note": "MOFCOM and GAC Announcement No. 10 of 2025 (tungsten, tellurium, bismuth, molybdenum, indium).",
+   "sources": [
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/26795"
+    },
+    {
+     "label": "Global Trade Alert",
+     "url": "https://globaltradealert.org/state-act/90374-china-government-announces-export-control-measures-for-various-items-related-to-tungsten-tellurium-bismuth-molybdenum-and-indium"
+    }
+   ]
+  },
+  {
+   "id": "in-2025",
+   "material_id": "indium",
+   "country": "China",
+   "instrument": "export licensing",
+   "announced": "2025-02-04",
+   "effective": "2025-02-04",
+   "note": "Same announcement as bismuth.",
+   "sources": [
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/26795"
+    }
+   ]
+  },
+  {
+   "id": "ni-2020",
+   "material_id": "nickel",
+   "country": "Indonesia",
+   "instrument": "export ban (ore)",
+   "announced": "2019-09-02",
+   "effective": "2020-01-01",
+   "note": "Ban on nickel ore exports, brought forward from 2022. Applies to ore, not refined nickel, so it is a weaker match for the platform's primary-nickel import data. Announced before the window but took effect inside it.",
+   "sources": [
+    {
+     "label": "IEA policy database",
+     "url": "https://www.iea.org/policies/16084-prohibition-of-the-export-of-nickel-ore"
+    },
+    {
+     "label": "USITC executive briefing",
+     "url": "https://www.usitc.gov/publications/332/executive_briefings/ebot_nickel_and_indonesia_part_1.pdf"
+    }
+   ]
+  }
+ ],
+ "out_of_scope": [
+  {
+   "material": "germanium",
+   "reason": "Announced with gallium (Announcement No. 23 of 2023). Not one of the 19 materials CMSEI scores, so it cannot be tested."
+  },
+  {
+   "material": "tungsten, tellurium, molybdenum",
+   "reason": "Announcement No. 10 of 2025. Not scored by CMSEI."
+  },
+  {
+   "material": "cobalt 2022",
+   "reason": "No government restriction in 2022 was found. Cobalt prices moved a lot that year, but a price move is not a supply restriction, so it is not used."
+  }
+ ]
+}

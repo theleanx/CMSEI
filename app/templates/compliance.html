@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Compliance rules screened{% endblock %}
+{% block main %}
+<h1>Compliance rules the screen looks at</h1>
+<p class="note warn">{{ note }} Rules version {{ version }}, last reviewed {{ reviewed }}.</p>
+{% for r in rules %}<div class="card"><h2>{{ r.title }}</h2><p class="small">{{ r.regime }}</p>
+<p><strong>Applies when:</strong> {{ r.applies_when }}</p>
+<p><strong>Materials CMSEI links to it:</strong> {% for m in r.materials %}<a href="/materials/{{ m }}">{{ names[m] }}</a>{{ ', ' if not loop.last }}{% endfor %}</p>
+<p>{{ r.scope_note }}</p><p><strong>Covered countries used by the screen:</strong> {{ r.covered_countries|join(', ') }}</p>
+{% for d in r.dates %}<p><strong>{{ d.date }}:</strong> {{ d.what }}</p>{% endfor %}
+<p class="small">Sources: {% for s in r.sources %}<a href="{{ s.url }}" rel="noopener noreferrer">{{ s.label }}</a>{{ '; ' if not loop.last }}{% endfor %}</p></div>{% endfor %}
+<p>{{ tariffs }}</p>
+{% endblock %}

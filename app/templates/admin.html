@@ -15,11 +15,27 @@
 {% for c in corr %}<div class="card"><p><strong>{{ c.material_id }}</strong> · {{ c.item }} → {{ c.proposed_value }}</p><p class="small"><a href="{{ c.source_link }}" rel="noopener noreferrer">{{ c.source_link }}</a></p><p>{{ c.note }}</p>
 <form method="post" action="/admin/correction/{{ c.id }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf }}"><label for="r{{c.id}}">Reason (required to decline)</label><input id="r{{c.id}}" name="reason" maxlength="500"><button class="btn" name="decision" value="accepted">Accept</button><button class="btn secondary" name="decision" value="declined">Decline</button></form></div>
 {% else %}<p>None.</p>{% endfor %}
+<h2>Data checks ({{ status.import_and_production_checked }} of {{ status.materials }} materials have import and production checked)</h2>
+<p class="small">Open the cited USGS table, compare each figure, then record it here. If any figure differed, fix <code>data/source_mcs2024.json</code> (or the newer source file) and redeploy first, then record "corrected" with what changed.</p>
+{% for m in mats %}<details><summary>{{ m.name }}</summary>
+<form method="post" action="/admin/verify/{{ m.id }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf }}">
+<label for="g{{ m.id }}">Figures compared</label><select id="g{{ m.id }}" name="data_group"><option>import</option><option>production</option><option>processing</option></select>
+<label for="o{{ m.id }}">Outcome</label><select id="o{{ m.id }}" name="outcome"><option>matched</option><option>corrected</option></select>
+<label for="d{{ m.id }}">Document, edition and page or table</label><input id="d{{ m.id }}" name="source_doc" maxlength="300" required minlength="8">
+<label for="n{{ m.id }}">Note (required if corrected)</label><input id="n{{ m.id }}" name="note" maxlength="1000"><button class="btn secondary">Record check</button></form>
+<h3 class="small">Alternate source decision</h3>
+<form method="post" action="/admin/alternate/{{ m.id }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf }}">
+<label for="c{{ m.id }}">Producer country</label><select id="c{{ m.id }}" name="country">{% for c in alt[m.id] %}<option>{{ c }}</option>{% endfor %}</select>
+<label for="s{{ m.id }}">Decision</label><select id="s{{ m.id }}" name="status"><option>qualified</option><option>unqualified</option></select>
+<label for="u{{ m.id }}">Evidence link</label><input id="u{{ m.id }}" name="evidence_url" type="url" maxlength="512" required>
+<label for="e{{ m.id }}">Why (capacity, customer qualification, restrictions)</label><input id="e{{ m.id }}" name="evidence_note" maxlength="1000" minlength="10" required><button class="btn secondary">Record decision and republish</button></form></details>{% endfor %}
+<h3>Recent checks</h3><ul class="small">{% for v in vers %}<li>{{ v.created_at.date() }} · {{ v.material_id }} · {{ v.data_group }} · {{ v.outcome }} · {{ v.reviewer }} · {{ v.source_doc }}</li>{% else %}<li>None yet.</li>{% endfor %}</ul>
+<h3>Recent alternate-source decisions</h3><ul class="small">{% for v in revs %}<li>{{ v.created_at.date() }} · {{ v.material_id }} · {{ v.country }} · {{ v.status }} · {{ v.reviewer }} · <a href="{{ v.evidence_url }}" rel="noopener noreferrer">evidence</a></li>{% else %}<li>None yet.</li>{% endfor %}</ul>
 <h2>Material sign-off</h2>
 <table class="plain"><thead><tr><th scope="col">Material</th><th scope="col">Signed off</th><th scope="col"></th></tr></thead><tbody>
 {% for m in mats %}<tr><th scope="row">{{ m.name }}</th><td>{{ m.signed_off_by or 'No' }}{% if m.signed_off_at %} · {{ m.signed_off_at.date() }}{% endif %}</td>
 <td><form method="post" action="/admin/signoff/{{ m.id }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn link">Sign off</button></form></td></tr>{% endfor %}</tbody></table>
 <h2>Maintenance</h2>
 <form method="post" action="/admin/publish"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn secondary">Recompute and publish snapshots</button></form>
-<p class="small">Only sign off a material after checking its figures against the cited PDF page.</p>
+<p class="small">Sign-off is refused until the import and production figures have a recorded comparison above.</p>
 {% endblock %}

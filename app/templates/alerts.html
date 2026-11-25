@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block main %}
+<h1>Tier-change alerts</h1>
+<p>Get a message in Slack, Microsoft Teams or email when a tracked material changes tier or moves 5 points or more. Materials on Indicative (grade C) data raise no alerts, so alerts are rare until data is verified.</p>
+{% if request.query_params.get('removed') %}<p class="note ok">That subscription was removed.</p>{% endif %}
+{% if error %}<p class="note warn" role="alert">{{ error }}</p>{% endif %}
+<div class="card"><h2>What is stored</h2><p>The webhook address or email you give, the materials you pick, and a hash of your manage link. Webhooks are tested before use; email needs a confirmation click. Remove it any time from the manage link. A subscription that fails 5 sends in a row is deleted, and unconfirmed ones are deleted after 7 days.</p></div>
+<form method="post" action="/alerts/subscribe" class="card"><input type="hidden" name="csrf" value="{{ csrf }}">
+<label for="ch">Where</label><select id="ch" name="channel"><option value="slack">Slack incoming webhook</option><option value="teams">Microsoft Teams webhook</option>{% if email_on %}<option value="email">Email</option>{% endif %}</select>
+<label for="tg">Webhook address or email</label><input id="tg" name="target" type="text" maxlength="700" required autocomplete="off">
+<fieldset><legend>Materials</legend>{% for k,n in materials %}<label><input type="checkbox" name="material_ids" value="{{ k }}"> {{ n }}</label> {% endfor %}</fieldset>
+<p class="actions"><button class="btn">Turn on alerts</button></p></form>
+<p class="small">API: <code>POST /api/v1/alerts</code> and <code>DELETE /api/v1/alerts/{manage_token}</code>.</p>
+{% endblock %}

@@ -17,7 +17,7 @@ from . import models  # noqa: F401
 from .logging_setup import setup as setup_logging
 from .ratelimit import limiter
 from .services import snapshots as S
-from . import api, web, admin
+from . import api, web, admin, company
 
 log = logging.getLogger("mse")
 BASE = pathlib.Path(__file__).resolve().parent
@@ -60,7 +60,12 @@ async def guard(request: Request, call_next):
     path = request.url.path
     if not path.startswith("/static"):
         key = client_key(request)
-        lim = settings.rate_assess_per_minute_ip if (request.method == "POST" and path in ("/assess", "/api/v1/assess")) else settings.rate_per_minute_ip
+        heavy = request.method == "POST" and (path in ("/assess", "/api/v1/assess", "/company/analyze", "/alerts/subscribe", "/api/v1/alerts")
+                                              or path.startswith("/api/v1/company/"))
+        lim = settings.rate_assess_per_minute_ip if heavy else settings.rate_per_minute_ip
+        cl = request.headers.get("content-length", "")
+        if cl.isdigit() and int(cl) > 3_000_000:
+            return JSONResponse({"error": {"code": "too_large", "message": "Request body is too large."}}, status_code=413)
         if not limiter.allow(f"{key}:{'assess' if lim == settings.rate_assess_per_minute_ip else 'all'}", lim):
             return JSONResponse({"error": {"code": "rate_limited", "message": "Too many requests. Try again in a minute."}}, status_code=429,
                                 headers={"Retry-After": "60"})
@@ -69,9 +74,13 @@ async def guard(request: Request, call_next):
     except Exception:
         log.exception("unhandled error on %s %s", request.method, path)      # message only, no request data
         resp = JSONResponse({"error": {"code": "server_error", "message": "Something went wrong."}}, status_code=500)
-    resp.headers["Content-Security-Policy"] = CSP
+    if path.startswith("/embed/materials/"):
+        # The widget is meant to be framed by other sites. It shows public market-level data only and has no forms or scripts.
+        resp.headers["Content-Security-Policy"] = CSP.replace("frame-ancestors 'none'", "frame-ancestors *")
+    else:
+        resp.headers["Content-Security-Policy"] = CSP
+        resp.headers["X-Frame-Options"] = "DENY"
     resp.headers["X-Content-Type-Options"] = "nosniff"
-    resp.headers["X-Frame-Options"] = "DENY"
     resp.headers["Referrer-Policy"] = "no-referrer"
     resp.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
     if settings.env == "production":
@@ -108,4 +117,6 @@ async def http_handler(request: Request, exc: StarletteHTTPException):
 
 app.include_router(api.router)
 app.include_router(admin.router)
+app.include_router(company.api)
+app.include_router(company.web)
 app.include_router(web.router)

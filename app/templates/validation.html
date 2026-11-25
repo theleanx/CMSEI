@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Validation{% endblock %}
+{% block main %}
+<h1>Validation: does the index point at the right materials?</h1>
+<p class="lead">{{ v.reading }}</p>
+<div class="card"><h2>What was tested</h2>
+<p>Did the index rank higher the materials that later faced a government export restriction, compared with the others? Labels come from a registry of documented restrictions ({{ v.n_positive }} of {{ v.n_materials }} materials). Scores are the official market-level scores with no event layer, computed from the loaded USGS 2024 tables.</p>
+<div class="tablewrap"><table class="plain data"><caption class="vh">Results</caption><thead><tr><th scope="col">Measure</th><th scope="col">AUC</th><th scope="col">95% interval</th><th scope="col">Chance of doing this well by luck</th></tr></thead><tbody>
+{% for k,x in v.results.items() %}<tr><th scope="row">{{ x.label }}</th><td class="num">{{ x.auc }}</td><td>{{ x.ci95[0] }} to {{ x.ci95[1] }}</td><td>{{ x.p_one_sided }}</td></tr>{% endfor %}</tbody></table></div>
+<p class="small">AUC 0.5 is chance and 1.0 is perfect. Difference, CMSEI minus top-producer share: {{ v.cmsei_minus_top_producer_share.auc_difference }} (interval {{ v.cmsei_minus_top_producer_share.ci95[0] }} to {{ v.cmsei_minus_top_producer_share.ci95[1] }}). Bootstrap {{ v.n_boot }} draws, permutation {{ v.n_perm }} draws, fixed seed {{ v.seed }}.</p>
+<h3>If the labels change</h3>
+<div class="tablewrap"><table class="plain data"><caption class="vh">Sensitivity</caption><thead><tr><th scope="col">Labels</th><th scope="col">Positives</th><th scope="col">CMSEI</th><th scope="col">Top producer share</th><th scope="col">Production HHI</th><th scope="col">Import HHI</th></tr></thead><tbody>
+{% for k,x in v.sensitivity.items() %}<tr><th scope="row">{{ k }}</th><td>{{ x.n_positive }}</td><td>{{ x.cmsei }}</td><td>{{ x.top_producer_share }}</td><td>{{ x.production_hhi }}</td><td>{{ x.import_hhi }}</td></tr>{% endfor %}</tbody></table></div></div>
+<div class="card"><h2>What this means</h2>
+<p>The index's own ranking is better than chance but not clearly so, and a one-line measure (the top producer's share of world output) did at least as well. Until a larger, independently labelled test shows otherwise, use the score as one screening input, not as a forecast.</p>
+<h3>Limits</h3><ul>{% for l in v.limits %}<li>{{ l }}</li>{% endfor %}</ul></div>
+<div class="card"><h2>The restrictions used</h2>
+<p class="small">{{ reg.label_rule }}</p><p class="note warn">{{ reg.completeness_warning }}</p>
+<ul>{% for e in reg.events %}<li><strong>{{ names[e.material_id] }}</strong>: {{ e.country }}, {{ e.instrument }}, announced {{ e.announced }}, effective {{ e.effective }}. {{ e.note }} {% for s in e.sources %}<a href="{{ s.url }}" rel="noopener noreferrer">{{ s.label }}</a>{{ ', ' if not loop.last }}{% endfor %}</li>{% endfor %}</ul>
+<h3>Considered and left out</h3><ul>{% for o in reg.out_of_scope %}<li><strong>{{ o.material }}</strong>: {{ o.reason }}</li>{% endfor %}</ul>
+<p class="small">Reproduce: <code>python scripts/backtest_shocks.py</code>. Machine-readable: <a href="/api/v1/validation">/api/v1/validation</a>, <a href="/api/v1/validation/registry">registry</a>. Disagree with a label or know of a missing restriction? <a href="/corrections">Report it</a>.</p></div>
+{% endblock %}

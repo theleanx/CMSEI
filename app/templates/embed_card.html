@@ -1,0 +1,5 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{ v.material.name }} supply exposure</title><link rel="stylesheet" href="/static/app.css"></head>
+<body><div class="card" style="margin:0;max-width:340px"><p class="small" style="margin:0">CMSEI supply exposure</p><h2 style="margin:.1em 0">{{ v.material.name }}</h2>
+<p style="margin:.2em 0"><span class="chip lg {{ tier_class[tier] }}">{{ tier }}</span> <strong>{{ v.snapshot.score }}</strong> / 100 <span class="small">(range {{ v.snapshot.uncertainty.range_low|round|int }} to {{ v.snapshot.uncertainty.range_high|round|int }})</span></p>
+{% if v.indicative %}<p class="small" style="margin:.2em 0"><strong>Indicative.</strong> Grade C data, not yet verified by a person.</p>{% endif %}
+<p class="small" style="margin:.3em 0">Market-level score, not about any one supplier. <a href="{{ settings.base_url }}/materials/{{ mid }}" target="_top">Details</a></p></div></body></html>

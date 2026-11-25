@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Critical Material Supply Exposure Index (CMSEI)"
+message: "If you use this software or the index, please cite it."
+type: software
+authors:
+  - alias: theleanx
+    name: "Ankit"
+repository-code: "https://github.com/theleanx/CMSEI"
+abstract: "Open-source platform that scores supply exposure for 19 critical materials with a governed event monitor, and rolls the scores up to a manufacturer's parts list."
+keywords: ["critical minerals", "supply chain", "concentration", "export controls"]

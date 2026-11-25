@@ -38,6 +38,17 @@ class Settings:
     secure_cookies = _b("SECURE_COOKIES", os.environ.get("APP_ENV", "development") == "production")
     stale_days_events = int(os.environ.get("EVENT_FEED_STALE_DAYS", "7"))
     contact = os.environ.get("CONTACT_URL", "")
+    # Governance. Shown on the Status and Methodology pages and on every PDF.
+    maintainer_name = os.environ.get("MAINTAINER_NAME", "Ankit (GitHub: theleanx)")
+    maintainer_role = os.environ.get("MAINTAINER_ROLE", "Maintainer and data steward")
+    # Optional email for alert confirmations. Alerts to Slack or Teams need no SMTP.
+    smtp_host = os.environ.get("SMTP_HOST", "")
+    smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+    smtp_user = os.environ.get("SMTP_USER", "")
+    smtp_password = os.environ.get("SMTP_PASSWORD", "")
+    smtp_from = os.environ.get("SMTP_FROM", "")
+    smtp_starttls = _b("SMTP_STARTTLS", True)
+    max_benchmark_per_day = int(os.environ.get("MAX_BENCHMARK_PER_DAY", "200"))
 
 
 settings = Settings()

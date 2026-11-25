@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Governance{% endblock %}
+{% block main %}
+<h1>Who stands behind the data</h1>
+<div class="card"><h2>Maintainer</h2><p><strong>{{ m.maintainer }}</strong>, {{ m.role }}.{% if m.contact %} Contact: <a href="{{ m.contact }}">{{ m.contact }}</a>.{% endif %}</p>
+<p>The maintainer decides what is published, signs off data, and answers corrections. One person is a weak point: a second reviewer is recommended before wide promotion. See <a href="https://github.com/theleanx/CMSEI/blob/main/GOVERNANCE.md">GOVERNANCE.md</a>.</p></div>
+<div class="card"><h2>What a person has checked</h2>
+<table class="plain"><tbody>
+<tr><th scope="row">Materials with import and production figures compared against the published table</th><td>{{ v.import_and_production_checked }} of {{ v.materials }}</td></tr>
+<tr><th scope="row">Materials with at least one alternate source recorded as qualified (earns credit in the score)</th><td>{{ v.materials_with_qualified_alternate }} of {{ v.materials }}</td></tr>
+<tr><th scope="row">Materials signed off</th><td>{{ m.sign_offs }} of {{ v.materials }}</td></tr></tbody></table>
+<p>{{ m.policy }}</p>
+<p class="small">Every check is a dated record naming the reviewer, the document and the outcome. Scores change only through the published snapshot log.</p></div>
+{% endblock %}
