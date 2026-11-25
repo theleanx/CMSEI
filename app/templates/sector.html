@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ s.name }}{% endblock %}
+{% block main %}
+<nav class="crumbs"><a href="/sectors">Sectors</a> ›</nav>
+<h1>{{ s.name }}</h1>
+<p class="small">NAICS: {{ s.naics|join(', ') }}. {{ list_status }}</p>
+{% if s.status == 'scored' %}
+<div class="card score {{ tier_class[s.tier] }}"><div class="score-head"><div class="big"><span class="num">{{ s.score }}</span><small>/100</small></div><div><span class="chip lg {{ tier_class[s.tier] }}">{{ s.tier }}</span><p>Highest-risk material: <a href="/materials/{{ s.top_material_id }}">{{ names[s.top_material_id] }}</a></p>{% if s.includes_indicative %}<p class="note warn">Includes Indicative (grade C) inputs.</p>{% endif %}</div></div></div>
+{% else %}<p class="note warn">Not scored yet. {{ s.reason }}</p>{% endif %}
+<h2>Member materials</h2>
+<div class="tablewrap"><table class="plain data"><thead><tr><th scope="col">Material</th><th scope="col">Score</th><th scope="col">Tier</th><th scope="col">Data</th></tr></thead>
+<tbody>{% for r in members %}<tr><th scope="row"><a href="/materials/{{ r.id }}">{{ r.name }}</a></th><td class="num">{{ r.score }}</td><td><span class="chip {{ tier_class[r.tier] }}">{{ r.tier }}</span></td><td>{% if r.indicative %}Indicative{% else %}Grade {{ r.data_grade }}{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

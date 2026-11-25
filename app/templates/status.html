@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Status{% endblock %}
+{% block main %}
+<h1>System status</h1>
+<p>A site that admits it is stale does less harm than one that quietly is.</p>
+<div class="card"><h2>Summary</h2>
+<table class="plain"><tbody>
+<tr><th scope="row">Launch status</th><td>{{ st.launch_status|capitalize }}</td></tr>
+<tr><th scope="row">Event layer</th><td>{{ st.event_layer }}</td></tr>
+<tr><th scope="row">Data vintage</th><td>{{ st.data_vintage }}</td></tr>
+<tr><th scope="row">Published snapshots</th><td>{{ st.published_snapshots }}</td></tr>
+<tr><th scope="row">Newest snapshot</th><td>{{ st.newest_snapshot_at or 'none' }}</td></tr>
+<tr><th scope="row">Held events</th><td>{{ st.held_events }}{% if st.held_alert %} (above the alert level of 5){% endif %}</td></tr>
+<tr><th scope="row">Event feed</th><td>{% if st.event_feed_stale %}Stale or not yet run. Event stages are not counted in any score.{% else %}Fresh{% endif %}</td></tr>
+</tbody></table></div>
+<div class="card"><h2>Last job runs</h2>
+<table class="plain"><thead><tr><th scope="col">Job</th><th scope="col">Status</th><th scope="col">Finished</th></tr></thead><tbody>
+{% for k,v in st.jobs.items() %}<tr><th scope="row">{{ k }}</th><td>{{ v.status if v else 'never run' }}</td><td>{{ v.finished_at if v else '' }}</td></tr>{% endfor %}
+</tbody></table></div>
+<p class="small">{{ st.transcription }} Machine-readable: <a href="/api/v1/data-status">/api/v1/data-status</a>.</p>
+{% endblock %}

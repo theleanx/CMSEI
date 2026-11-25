@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block main %}
+<section class="hero">
+  <h1>How exposed is the supply of a material you buy?</h1>
+  <p class="small">CMSEI scores supply concentration for 19 critical minerals, from public USGS and IEA data.</p>
+  <p class="lead">Type a material in plain words. You get a market-level score from 0 to 100, the reasoning, the sources, and a few next steps. It is the same score for every user. It does not need your company's data.</p>
+  <form method="post" action="/assess" class="card form" autocomplete="off">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label for="d">Material or part you buy</label>
+    <input id="d" name="material_description" type="text" maxlength="300" placeholder="For example: neodymium magnets, lithium-ion cells, gallium nitride chips" aria-describedby="privacy-note" required>
+    <div class="grid2">
+      <div><label for="r">Where you source it from (optional)</label>
+        <select id="r" name="sourcing_region"><option value="">Skip</option>{% for k,l,c in REGION_CHOICES %}<option value="{{k}}">{{l}}</option>{% endfor %}</select></div>
+      <div><label for="v">How much you use (optional)</label>
+        <select id="v" name="volume_tier"><option value="">Skip</option>{% for k,l in VOLUME_CHOICES %}<option value="{{k}}">{{l}}</option>{% endfor %}</select></div>
+    </div>
+    <p id="privacy-note" class="note"><strong>What happens to what you type:</strong> your text is used once to find the material and is not saved or logged. Region and volume only choose which next-step suggestions you see. They never change the score and are not stored.</p>
+    <button class="btn" type="submit">Check exposure</button>
+    <p class="small">Or <a href="/materials">browse all {{ total }} tracked materials</a>.</p>
+  </form>
+</section>
+
+<section aria-labelledby="top-h">
+  <h2 id="top-h">Highest scores right now</h2>
+  <div class="cards">
+  {% for r in top %}
+    <a class="card tile" href="/materials/{{ r.id }}">
+      <span class="chip {{ tier_class[r.tier] }}">{{ r.tier }}</span>
+      <strong>{{ r.name }}</strong>
+      <span class="num">{{ r.score }}<small>/100</small></span>
+      <span class="small">{{ r.dominant_country }} produces {{ r.dominant_share|round|int }}%{% if r.indicative %} · Indicative{% endif %}</span>
+    </a>
+  {% endfor %}
+  </div>
+  <p class="small">Preview data. Scores include a stated uncertainty range on each material page.</p>
+</section>
+
+<section class="grid3 info">
+  <div><h3>Market-level, not personal</h3><p>The score describes how concentrated and hard to replace the world supply is. It cannot see your suppliers, inventory or contracts.</p></div>
+  <div><h3>Open about its limits</h3><p>Every score shows its data grade and a range. The index has not been shown to predict restrictions better than simple concentration. <a href="/methodology#validation">Read the test results</a>.</p></div>
+  <div><h3>No account</h3><p>A watchlist lives under a random token in your browser. Delete it any time.</p></div>
+</section>
+{% endblock %}

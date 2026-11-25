@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% from "_macros.html" import gauge, grade_chip %}
+{% block title %}{{ material.name }}: supply exposure {{ snapshot.score }} ({{ tier }}){% endblock %}
+{% block main %}
+{% set s = snapshot %}
+<nav class="crumbs" aria-label="Breadcrumb"><a href="/materials">Materials</a> › {{ material.group }}</nav>
+<h1>{{ material.name }}</h1>
+{% if just_assessed %}<p class="note ok">Your description{% if personalized %}, region and volume were{% else %} was{% endif %} used once to find this page and were not stored.</p>{% endif %}
+
+<section class="card score {{ tier_class[tier] }}" aria-labelledby="score-h">
+  <div class="score-head">
+    <h2 id="score-h" class="vh">Exposure score</h2>
+    <div class="big" aria-label="Score {{ s.score }} out of 100"><span class="num">{{ s.score }}</span><small>/100</small></div>
+    <div>
+      <span class="chip lg {{ tier_class[tier] }}">{{ tier }}</span>
+      {{ grade_chip(s.data_grade) }}
+      {% if under_review %}<span class="chip review">Update under review</span>{% endif %}
+      <p class="small">{{ tier_blurb[tier] }}</p>
+    </div>
+  </div>
+  {{ gauge(s.score, 'Exposure score') }}
+  <p class="small">Market-level score, the same for every user. Computed {{ s.published_at[:10] }} from {{ s.data_as_of }}. Formula v{{ s.formula_version }}. Snapshot {{ s.snapshot_id }}.</p>
+  <p class="note warn"><strong>Validation status: not validated as a predictor.</strong> Backtests found this index does not beat simple world-production concentration at anticipating export restrictions. Use it to see where supply is concentrated and what could change it, not to forecast events. <a href="/methodology#validation">Test results</a>.</p>
+  {% if indicative %}<p class="note warn"><strong>Indicative.</strong> Processing-stage shares are not loaded for this material, so mining or primary-production shares stand in for them. Real processing data would likely raise the processing term. Do not use this score alone.</p>{% endif %}
+  {% if not reviewed %}<p class="note">A reviewer has not yet signed off this material's first data load.</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="sure-h">
+  <h2 id="sure-h">How sure is this score?</h2>
+  <p>Reasonable range: <strong>{{ u.range_low|round|int }} to {{ u.range_high|round|int }}</strong>. This comes from {{ u.n_runs }} seeded variations of the weights, the substitution factor, event size, country shares, and which alternate sources count.</p>
+  <table class="plain"><caption class="vh">Share of variations in each tier</caption>
+    <thead><tr><th scope="col">Tier</th><th scope="col">Share of variations</th></tr></thead>
+    <tbody>{% for t in ['Low','Moderate','High','Critical'] %}<tr><th scope="row">{{ t }}</th><td>{{ (u.tier_shares[t]*100)|round|int }}%</td></tr>{% endfor %}</tbody></table>
+  <p>Changing only the weights keeps the tier {{ (u.weights_only_same_tier*100)|round|int }}% of the time.</p>
+  {% if u.near_boundary %}<p class="note warn"><strong>Near a boundary.</strong> The tier changes in more than 20% of variations.</p>{% endif %}
+  {% if u.tier_depends_on_alternates %}<p class="note warn"><strong>The tier depends on one unreviewed assumption.</strong> The score counts other producing countries as possible alternates. No person has qualified any of them yet. If none counted, the score would be {{ u.no_alternate_credit_composite|round|int }} ({{ u.no_alternate_credit_tier }}).</p>
+  {% else %}<p class="small">If no other producer were credited as an alternate, the score would be {{ u.no_alternate_credit_composite|round|int }} ({{ u.no_alternate_credit_tier }}).</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="comp-h">
+  <h2 id="comp-h">What drives it</h2>
+  <div class="tablewrap"><table class="plain">
+    <thead><tr><th scope="col">Measure</th><th scope="col">Value</th><th scope="col">Basis</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Concentration</th><td>{{ s.components.concentration|round|int }}/100</td><td>US import shares, 2019-22. Grade {{ u.grades.concentration }}.</td></tr>
+      <tr><th scope="row">Processing-stage risk</th><td>{{ s.components.processing_risk|round|int }}/100</td><td>{{ material.processing.note }} Grade {{ u.grades.processing }}.</td></tr>
+      <tr><th scope="row">Substitution difficulty</th><td>{{ s.components.substitution_difficulty|round|int }}/100</td><td>{{ u.N_eff|round(2) }} alternate-source credits; difficulty factor {{ material.substitution_difficulty }} (estimated, not expert-reviewed).</td></tr>
+      <tr><th scope="row">Geopolitical condition</th><td>{{ '%.2f'|format(s.components.geopolitical_multiplier) }}×</td><td>{% if s.components.geopolitical_multiplier > 1 %}Active confirmed events raise the score.{% else %}No confirmed event is counted. The event monitor runs in shadow mode and does not change scores yet.{% endif %}</td></tr>
+    </tbody></table></div>
+  {% if divergence_note %}<p class="note warn"><strong>Import sources look varied, but world production is concentrated.</strong> {{ material.dominant_country }} produces {{ material.production.shares[0].share|round|int }}% of world output while the largest US import source is {{ material.dominant_import_country }} at {{ material.import.shares[0].share|round|int }}%.</p>{% endif %}
+</section>
+
+<section class="card" aria-labelledby="rec-h">
+  <h2 id="rec-h">Suggested next steps</h2>
+  {% if not personalized %}<p class="small">These are general. Add your region and volume to see steps that fit them. They are not stored.</p>{% endif %}
+  <ul class="recs">{% for r in recommendations %}<li><p>{{ r.text }}</p><p class="small">Rule {{ r.rule_id }}. Guidance basis: {{ r.guidance_basis }}</p></li>{% endfor %}</ul>
+  <form method="post" action="/materials/{{ mid }}" class="inline">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label for="rg">Region</label>
+    <select id="rg" name="sourcing_region"><option value="">Skip</option>{% for k,l,c in REGION_CHOICES %}<option value="{{k}}" {% if k==region %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+    <label for="vl">Volume</label>
+    <select id="vl" name="volume_tier"><option value="">Skip</option>{% for k,l in VOLUME_CHOICES %}<option value="{{k}}" {% if k==volume %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+    <button class="btn secondary" type="submit">Update steps</button>
+  </form>
+  <p class="small">Evidence for the score is cited below. The suggested steps rest on internal rules, not on those sources.</p>
+</section>
+
+<section class="card" aria-labelledby="sim-h">
+  <h2 id="sim-h">Try a what-if</h2>
+  <p>Explore a hypothetical change in the <em>market</em>. This never changes the official score and nothing is saved.</p>
+  <form method="post" action="/materials/{{ mid }}/simulate" class="inline">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="sourcing_region" value="{{ region }}"><input type="hidden" name="volume_tier" value="{{ volume }}">
+    <label for="fam">Scenario</label>
+    <select id="fam" name="family" required>
+      <option value="add_source">A new qualified source is added</option>
+      <option value="easier_substitution">Substitution gets easier (difficulty drops one step)</option>
+      <option value="event_change">Geopolitical conditions change</option>
+      <option value="supply_cut">Dominant country's supply is cut</option>
+    </select>
+    <label for="opt">Option (for the last two)</label>
+    <select id="opt" name="option">
+      <option value="">None</option>
+      <optgroup label="Geopolitical conditions"><option value="none">No active restriction</option><option value="statement">Government statement</option><option value="proposed">Proposed restriction</option><option value="enacted">Enacted licensing</option><option value="ban">Effective ban</option></optgroup>
+      <optgroup label="Supply cut"><option value="partial">Partial cut</option><option value="full">Full cut-off</option></optgroup>
+    </select>
+    <button class="btn secondary" type="submit">Run what-if</button>
+  </form>
+  {% if simulation %}
+  {% set r = simulation.result %}
+  <div class="sim" role="region" aria-label="Simulated result">
+    <p><span class="chip sim-chip">Simulated</span> {{ r.label }}{% if r.option %} ({{ r.option }}){% endif %}</p>
+    <p>Official score <strong>{{ round_score(r.official.composite) }}</strong> ({{ r.official.tier }}) → simulated <strong>{{ round_score(r.simulated.composite) }}</strong> ({{ r.simulated.tier }}), change {{ '%+d'|format(r.delta_rounded) }}.</p>
+    <p class="small">{{ r.note }}</p>
+    <p><strong>Steps under this scenario (scenario-based, not official):</strong></p>
+    <ul class="recs">{% for x in simulation.recommendations %}<li><p>{{ x.text }}</p></li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+</section>
+
+<section class="card" aria-labelledby="ev-h">
+  <h2 id="ev-h">Where the numbers come from</h2>
+  <div class="grid2">
+    <div><h3>Largest producers, 2023</h3>
+      <table class="plain"><tbody>{% for x in material.production.shares[:6] %}<tr><th scope="row">{{ x.country }}</th><td>{{ x.share|round(1) }}%</td></tr>{% endfor %}</tbody></table></div>
+    <div><h3>US import sources, 2019-22 ({{ material.import.form }})</h3>
+      <table class="plain"><tbody>{% for x in material.import.shares %}<tr><th scope="row">{{ x.country }}</th><td>{{ x.share|round|int }}%</td></tr>{% endfor %}<tr><th scope="row">Other</th><td>{{ material.import.other_share|round|int }}%</td></tr></tbody></table></div>
+  </div>
+  <p class="small">Net import reliance (USGS, shown for context, not scored): {{ material.nir }}%.</p>
+  <h3>Sources</h3>
+  <ul>{% for c in s.citations %}<li>{% if c.url %}<a href="{{ c.url }}" rel="noopener noreferrer">{{ c.label }}</a>{% else %}{{ c.label }}{% endif %}{% if c.tables %} <span class="small">({{ c.tables }})</span>{% endif %}</li>{% endfor %}</ul>
+  <p class="small">Figures were read from the USGS tables through a page reader and have not been checked against the PDFs by a person. <a href="/corrections?material={{ mid }}">Report a correction</a>. <a href="/api/v1/snapshots/{{ s.snapshot_id }}/verify">Verify this snapshot</a>.</p>
+</section>
+
+<section class="actions" aria-label="Actions">
+  {% if on_watch %}
+  <form method="post" action="/watchlist/remove"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="material_id" value="{{ mid }}"><button class="btn secondary">Remove from watchlist</button></form>
+  {% else %}
+  <form method="post" action="/watchlist/add"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="material_id" value="{{ mid }}"><button class="btn">Add to watchlist</button></form>
+  {% endif %}
+  <a class="btn secondary" href="/materials/{{ mid }}/report.pdf">Download PDF</a>
+  <a class="btn secondary" href="/api/v1/materials/{{ mid }}">API (JSON)</a>
+</section>
+{% endblock %}

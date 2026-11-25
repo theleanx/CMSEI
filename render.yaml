@@ -1,0 +1,31 @@
+databases:
+  - name: mse-db
+    plan: basic-256mb
+    databaseName: mse
+    user: mse
+services:
+  - type: web
+    name: mse-web
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/v1/health
+    envVars:
+      - {key: DATABASE_URL, fromDatabase: {name: mse-db, property: connectionString}}
+      - {key: APP_ENV, value: production}
+      - {key: PUBLISH_EVENTS, value: "false"}
+      - {key: LAUNCH_STATUS, value: preview}
+      - {key: PUBLIC_BASE_URL, sync: false}
+      - {key: CONTACT_URL, sync: false}
+      - {key: ADMIN_PASSWORD, generateValue: true}
+      - {key: ANTHROPIC_API_KEY, sync: false}
+  - type: cron
+    name: mse-daily
+    runtime: docker
+    plan: starter
+    schedule: "17 9 * * *"
+    dockerCommand: python -m app.worker.cli daily
+    envVars:
+      - {key: DATABASE_URL, fromDatabase: {name: mse-db, property: connectionString}}
+      - {key: APP_ENV, value: production}
+      - {key: PUBLISH_EVENTS, value: "false"}
+      - {key: ANTHROPIC_API_KEY, sync: false}

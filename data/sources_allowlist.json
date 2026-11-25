@@ -1,0 +1,18 @@
+{
+ "version": "1",
+ "note": "Event source allowlist (spec 4.9 item 1). Versioned in the repo; changes go through a pull request. Exact host match only. Initial list, not yet reviewed by counsel or a domain reviewer.",
+ "hosts": {
+  "www.federalregister.gov": {"tier": 1, "issuer": "United States"},
+  "federalregister.gov": {"tier": 1, "issuer": "United States"},
+  "www.mofcom.gov.cn": {"tier": 1, "issuer": "China"},
+  "english.mofcom.gov.cn": {"tier": 1, "issuer": "China"},
+  "eur-lex.europa.eu": {"tier": 1, "issuer": "European Union"},
+  "www.reuters.com": {"tier": 2, "issuer": null},
+  "apnews.com": {"tier": 2, "issuer": null},
+  "www.mining.com": {"tier": 2, "issuer": null},
+  "www.argusmedia.com": {"tier": 2, "issuer": null}
+ },
+ "feeds": [
+  {"id": "federal-register", "kind": "federal_register_api", "enabled": true}
+ ]
+}

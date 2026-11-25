@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}CMSEI: Critical Material Supply Exposure Index{% endblock %}</title>
+<meta name="description" content="A free, market-level view of how concentrated and hard to replace the supply of critical materials is for US manufacturers. No account. No company data.">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f4e79'/%3E%3Cpath d='M6 22h4v-6H6zm8 0h4V10h-4zm8 0h4V6h-4z' fill='white'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+{% if settings.launch_status != 'live' %}
+<div class="banner" role="note"><strong>Preview.</strong> Scores use USGS 2024 tables that a person has not yet checked against the source PDFs, and most materials lack processing-stage data. Treat results as indicative. <a href="/methodology#limits">What this means</a></div>
+{% endif %}
+<header class="site">
+  <div class="wrap bar">
+    <a class="brand" href="/">CMSEI <span class="small">Critical Material Supply Exposure Index</span></a>
+    <nav aria-label="Main">
+      <a href="/materials" {% if path.startswith('/materials') %}aria-current="page"{% endif %}>Materials</a>
+      <a href="/sectors" {% if path.startswith('/sectors') %}aria-current="page"{% endif %}>Sectors</a>
+      <a href="/watchlist" {% if path.startswith('/watchlist') %}aria-current="page"{% endif %}>Watchlist</a>
+      <a href="/methodology" {% if path.startswith('/methodology') %}aria-current="page"{% endif %}>Method</a>
+      <a href="/status" {% if path.startswith('/status') %}aria-current="page"{% endif %}>Status</a>
+    </nav>
+  </div>
+</header>
+<main id="main" class="wrap">
+{% block main %}{% endblock %}
+</main>
+<footer class="site">
+  <div class="wrap">
+    <p class="small">CMSEI (Critical Material Supply Exposure Index) is an informational, market-level screening view built from public data. It does not describe any company, supplier or individual, and it is not sourcing, legal, financial or investment advice. Scores are estimates that depend on published data of varying age and quality, and on modeling choices described on the <a href="/methodology">Methodology</a> page. Do not rely on a score alone to make a purchasing or compliance decision.</p>
+    <p class="small"><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/accessibility">Accessibility</a> · <a href="/events">Event audit log</a> · <a href="/corrections">Report a correction</a> · <a href="/api/docs">API</a> · Data: USGS (public domain), IEA (CC BY 4.0, attribution required).</p>
+  </div>
+</footer>
+</body>
+</html>

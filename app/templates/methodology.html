@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Methodology{% endblock %}
+{% block main %}
+<h1>Methodology</h1>
+<p>The index is a <strong>market-level</strong> score from 0 to 100 for each tracked material. It is identical for every user. It measures how concentrated the supply is and how hard it is to replace. It does not see any company's suppliers, inventory or contracts. Formula version {{ m.formula_version }}, taxonomy {{ taxonomy_version }}, data {{ source_vintage }}.</p>
+
+<h2 id="formula">The formula</h2>
+<table class="plain"><tbody>
+{% for k,v in m.formula.items() %}<tr><th scope="row">{{ k }}</th><td>{{ v }}</td></tr>{% endfor %}
+</tbody></table>
+<p>HHI is the sum of squared percentage shares (0 to 10,000). An alternate source earns full credit at 5% of world supply or more and partial credit below that, so there is no cliff at the cut-off. Tiers: Low 0 to 30, Moderate above 30 to 60, High above 60 to 80, Critical above 80 to 100.</p>
+<p>Event effects on G: statement +0.02, proposed restriction +0.08, enacted licensing +0.15, effective ban +0.30. Only the current stage of each situation counts. G never goes below 1.0 or above 1.5.</p>
+<p>Weights (0.3, 0.4, 0.3) and the 0.3/0.7 raw/processing split are expert-set starting values, not fitted to data. They are not original: a published consultancy framework uses the same numeric weights on different components.</p>
+
+<h2 id="grades">Data grades</h2>
+<ul>
+<li><strong>A</strong>: official processing shares under 24 months old covering at least 90% of output.</li>
+<li><strong>B</strong>: a single secondary source, or official data 24 to 48 months old, or coverage of 70 to 90%.</li>
+<li><strong>C, Indicative</strong>: estimated from a stand-in (mining shares). Excluded from alerts. Included in sector averages only while the site is in preview, and labelled.</li>
+<li><strong>Not scored</strong>: no usable data.</li>
+</ul>
+<p>Grades fall one step when data passes 48 months of age.</p>
+
+<h2 id="uncertainty">Uncertainty</h2>
+<p>Each score shows a range from {{ 2000 }} seeded variations of the weights, the substitution factor, event size, country shares, and which alternate sources count. The seed is fixed, so the range is reproducible and stored with the snapshot. A material is marked "near a boundary" if the tier changes in more than 20% of variations.</p>
+<p><strong>One assumption matters most.</strong> Every non-dominant producing country is credited as a provisional alternate source because no person has qualified any of them yet. The score shown includes that credit. The page also shows the score with no alternate credit, which is higher. Where the two fall in different tiers the page says so.</p>
+
+<h2 id="validation">Validation: what has and has not been shown</h2>
+<div class="note warn">
+<p><strong>The index has not been shown to predict export restrictions better than a simple measure of concentration.</strong> It should be read as a transparent screening view, not as a forecast.</p>
+</div>
+<ul>
+<li>A pre-registered backtest at January 2024 (19 minerals, 5 restricted) gave an index AUC of 0.83 (95% interval 0.60 to 0.98) against 0.89 for world-production concentration alone. The pre-registered success rule was not met.</li>
+<li>Two earlier scoring dates (2022 and 2020) added 31 observations but only two independent restriction events. The rule was not met there either. Across all three dates the index scored 0.71 against 0.70 for production concentration.</li>
+<li>The index ranked lowest of 17 minerals on a 2020 nickel export duty imposed by Russia, and it cannot see restrictions imposed by governments other than China.</li>
+<li>Adding real processing-stage data for cobalt and rare earths, and top-supplier shares for lithium and nickel, did not change the result. Those two runs were post-hoc.</li>
+<li>These tests used a small sample, labels from shallow searches, and figures read through a page reader. The intervals are wide.</li>
+</ul>
+
+<h2 id="events">The event layer</h2>
+<p>A language model, when configured, only quotes passages and tags fields. Fixed rules check that the quote appears verbatim in the fetched document, that the date, country and material match, and that the source meets the tier rules. Enacted rules and bans need the issuing government's own text. Statements and proposals need two independent sources. Enacted or higher stages and any tier change wait for a named reviewer, and held items expire after 72 hours instead of publishing. Every candidate, accepted or rejected, is in the <a href="/events">public audit log</a>.</p>
+<p><strong>Status: shadow mode.</strong> The monitor runs and logs but changes no published score. The go-live test (300 hand-labeled real documents, precision at least 0.95 and recall at least 0.80 for enacted and above, a prompt-injection set, and 60 days in shadow) has not been done. The reference gate was tested on synthetic documents only. Live-model accuracy on real documents is unmeasured.</p>
+
+<h2 id="limits">Known limits</h2>
+<ul>{% for l in m.limits %}<li>{{ l }}</li>{% endfor %}
+<li>Net import reliance is shown for context and is not part of the score.</li>
+<li>Sector lists are drafts and have not been approved by a reviewer.</li>
+<li>Recommendation text rests on internal rules with no external citation yet. It is cited separately from the evidence behind the score and the two are never presented as one claim.</li>
+<li>Prior art exists: public HHI-based supply-risk dashboards and consultancy frameworks. This site does not claim to be the first.</li>
+</ul>
+
+<h2 id="reproduce">Reproducing a score</h2>
+<p>Every published score is a snapshot with its exact inputs, formula version, taxonomy version and hash. <code>GET /api/v1/snapshots/{id}/verify</code> recomputes it from the stored inputs and tells you whether it matches.</p>
+{% endblock %}

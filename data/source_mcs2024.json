@@ -1,0 +1,406 @@
+{
+ "source": "USGS Mineral Commodity Summaries 2024 (Jan 2024), country tables as transcribed for the pilot backtest",
+ "transcription_note": "Read through a summarizing page reader on 2026-10-11, not a verbatim copy. Digits are NOT verified against the PDFs. Production year 2023; import sources 2019-22; NIR 2023.",
+ "import": {
+  "arsenic": {
+   "form": "all forms",
+   "shares": {
+    "China": 58,
+    "Morocco": 30,
+    "Malaysia": 7,
+    "Belgium": 4
+   }
+  },
+  "barite": {
+   "form": "barite",
+   "shares": {
+    "India": 36,
+    "China": 30,
+    "Morocco": 17,
+    "Mexico": 13
+   }
+  },
+  "bauxite": {
+   "form": "bauxite",
+   "shares": {
+    "Jamaica": 64,
+    "Turkey": 9,
+    "Guyana": 8,
+    "Australia": 6
+   }
+  },
+  "bismuth": {
+   "form": "bismuth",
+   "shares": {
+    "China": 68,
+    "Korea": 20,
+    "Belgium": 2,
+    "Mexico": 2
+   }
+  },
+  "chromium": {
+   "form": "total",
+   "shares": {
+    "SouthAfrica": 34,
+    "Kazakhstan": 12,
+    "Russia": 6,
+    "Canada": 5
+   }
+  },
+  "cobalt": {
+   "form": "metal oxide salts",
+   "shares": {
+    "Norway": 25,
+    "Canada": 15,
+    "Finland": 13,
+    "Japan": 12
+   }
+  },
+  "fluorspar": {
+   "form": "fluorspar",
+   "shares": {
+    "Mexico": 64,
+    "Vietnam": 15,
+    "China": 6,
+    "SouthAfrica": 6
+   }
+  },
+  "gallium": {
+   "form": "metal",
+   "shares": {
+    "Japan": 26,
+    "China": 21,
+    "Germany": 19,
+    "Canada": 9
+   }
+  },
+  "indium": {
+   "form": "indium",
+   "shares": {
+    "Korea": 32,
+    "Canada": 19,
+    "Belgium": 11
+   }
+  },
+  "lithium": {
+   "form": "lithium",
+   "shares": {
+    "Argentina": 51,
+    "Chile": 43,
+    "China": 3,
+    "Russia": 2
+   }
+  },
+  "magnesium-metal": {
+   "form": "combined total",
+   "shares": {
+    "Canada": 18,
+    "China": 9,
+    "Israel": 9,
+    "Taiwan": 9
+   }
+  },
+  "nickel": {
+   "form": "primary nickel",
+   "shares": {
+    "Canada": 46,
+    "Norway": 9,
+    "Finland": 7,
+    "Russia": 7
+   }
+  },
+  "niobium": {
+   "form": "total",
+   "shares": {
+    "Brazil": 66,
+    "Canada": 26
+   }
+  },
+  "rare-earths": {
+   "form": "compounds and metals",
+   "shares": {
+    "China": 72,
+    "Malaysia": 11,
+    "Japan": 6,
+    "Estonia": 5
+   }
+  },
+  "tantalum": {
+   "form": "total",
+   "shares": {
+    "China": 24,
+    "Germany": 13,
+    "Australia": 11,
+    "Indonesia": 9
+   }
+  },
+  "tin": {
+   "form": "refined tin",
+   "shares": {
+    "Peru": 27,
+    "Bolivia": 21,
+    "Indonesia": 20,
+    "Malaysia": 11
+   }
+  },
+  "vanadium": {
+   "form": "total",
+   "shares": {
+    "Canada": 28,
+    "Brazil": 15,
+    "Austria": 10,
+    "Russia": 8
+   }
+  },
+  "zinc": {
+   "form": "ores and concentrates",
+   "shares": {
+    "Peru": 67,
+    "Canada": 19,
+    "China": 7,
+    "Taiwan": 3
+   }
+  },
+  "zirconium-hafnium": {
+   "form": "zirconium ores",
+   "shares": {
+    "SouthAfrica": 46,
+    "Australia": 34,
+    "Senegal": 18,
+    "Russia": 1
+   }
+  }
+ },
+ "nir": {
+  "arsenic": 100,
+  "barite": 75,
+  "bauxite": 75,
+  "bismuth": 94,
+  "chromium": 74,
+  "cobalt": 67,
+  "fluorspar": 100,
+  "gallium": 100,
+  "indium": 100,
+  "lithium": 25,
+  "magnesium-metal": 50,
+  "nickel": 57,
+  "niobium": 100,
+  "rare-earths": 95,
+  "tantalum": 100,
+  "tin": 74,
+  "vanadium": 58,
+  "zinc": 77,
+  "zirconium-hafnium": 25
+ },
+ "production": {
+  "arsenic": {
+   "Belgium": 1000,
+   "China": 24000,
+   "Japan": 40,
+   "Morocco": 8000,
+   "Peru": 27000,
+   "Russia": 200
+  },
+  "barite": {
+   "China": 1900,
+   "India": 2700,
+   "Iran": 300,
+   "Kazakhstan": 600,
+   "Laos": 600,
+   "Mexico": 260,
+   "Morocco": 1200,
+   "Russia": 250,
+   "Turkey": 250,
+   "Other": 430
+  },
+  "bauxite": {
+   "Australia": 98000,
+   "Brazil": 31000,
+   "China": 93000,
+   "Greece": 1200,
+   "Guinea": 97000,
+   "India": 23000,
+   "Indonesia": 20000,
+   "Jamaica": 6000,
+   "Kazakhstan": 4300,
+   "Russia": 5800,
+   "SaudiArabia": 4600,
+   "Turkey": 2000,
+   "Vietnam": 3700,
+   "Other": 5600
+  },
+  "bismuth": {
+   "Bolivia": 40,
+   "Bulgaria": 50,
+   "China": 16000,
+   "Japan": 500,
+   "Kazakhstan": 160,
+   "Korea": 850,
+   "Laos": 2000
+  },
+  "chromium": {
+   "Finland": 2000,
+   "India": 4200,
+   "Kazakhstan": 6000,
+   "SouthAfrica": 18000,
+   "Turkey": 6000,
+   "Other": 5200
+  },
+  "cobalt": {
+   "US": 500,
+   "Australia": 4600,
+   "Canada": 2100,
+   "DRC": 170000,
+   "Cuba": 3200,
+   "Indonesia": 17000,
+   "Madagascar": 4000,
+   "NewCaledonia": 3000,
+   "PNG": 2900,
+   "Philippines": 3800,
+   "Russia": 8800,
+   "Turkey": 2800,
+   "Other": 6600
+  },
+  "fluorspar": {
+   "China": 5700,
+   "Germany": 60,
+   "Iran": 120,
+   "Mexico": 1000,
+   "Mongolia": 930,
+   "Pakistan": 52,
+   "SouthAfrica": 410,
+   "Spain": 150,
+   "Vietnam": 170,
+   "Other": 170
+  },
+  "gallium": {
+   "China": 600000,
+   "Japan": 3000,
+   "Korea": 2000,
+   "Russia": 5000
+  },
+  "indium": {
+   "Belgium": 18,
+   "Canada": 37,
+   "China": 650,
+   "France": 12,
+   "Japan": 64,
+   "Korea": 200,
+   "Russia": 5,
+   "Uzbekistan": 1
+  },
+  "lithium": {
+   "Argentina": 9600,
+   "Australia": 86000,
+   "Brazil": 4900,
+   "Canada": 3400,
+   "Chile": 44000,
+   "China": 33000,
+   "Portugal": 380,
+   "Zimbabwe": 3400
+  },
+  "magnesium-metal": {
+   "Brazil": 22,
+   "China": 830,
+   "Iran": 5,
+   "Israel": 22,
+   "Kazakhstan": 25,
+   "Russia": 20,
+   "Turkey": 15
+  },
+  "nickel": {
+   "US": 17000,
+   "Australia": 160000,
+   "Brazil": 89000,
+   "Canada": 180000,
+   "China": 110000,
+   "Indonesia": 1800000,
+   "NewCaledonia": 230000,
+   "Philippines": 400000,
+   "Russia": 200000,
+   "Other": 380000
+  },
+  "niobium": {
+   "Brazil": 75000,
+   "Canada": 7000,
+   "DRC": 540,
+   "Russia": 440,
+   "Rwanda": 190,
+   "Other": 150
+  },
+  "rare-earths": {
+   "US": 43000,
+   "Australia": 18000,
+   "Brazil": 80,
+   "Burma": 38000,
+   "China": 240000,
+   "India": 2900,
+   "Madagascar": 960,
+   "Malaysia": 80,
+   "Russia": 2600,
+   "Thailand": 7100,
+   "Vietnam": 600
+  },
+  "tantalum": {
+   "Australia": 43,
+   "Brazil": 360,
+   "Burundi": 36,
+   "China": 79,
+   "DRC": 980,
+   "Nigeria": 110,
+   "Russia": 20,
+   "Rwanda": 520,
+   "Other": 260
+  },
+  "tin": {
+   "Australia": 9100,
+   "Bolivia": 18000,
+   "Brazil": 18000,
+   "Burma": 54000,
+   "China": 68000,
+   "DRC": 19000,
+   "Indonesia": 52000,
+   "Laos": 2300,
+   "Malaysia": 6100,
+   "Nigeria": 8100,
+   "Peru": 23000,
+   "Russia": 2700,
+   "Rwanda": 3800,
+   "Vietnam": 5300,
+   "Other": 1300
+  },
+  "vanadium": {
+   "Brazil": 6400,
+   "China": 68000,
+   "Russia": 20000,
+   "SouthAfrica": 9100
+  },
+  "zinc": {
+   "US": 750,
+   "Australia": 1100,
+   "Bolivia": 490,
+   "China": 4000,
+   "India": 860,
+   "Kazakhstan": 330,
+   "Mexico": 690,
+   "Peru": 1400,
+   "Russia": 310,
+   "SouthAfrica": 230,
+   "Sweden": 220,
+   "Other": 1800
+  },
+  "zirconium-hafnium": {
+   "US": 100,
+   "Australia": 500,
+   "China": 140,
+   "Indonesia": 90,
+   "Kenya": 30,
+   "Madagascar": 30,
+   "Mozambique": 90,
+   "Senegal": 50,
+   "SierraLeone": 30,
+   "SouthAfrica": 400,
+   "Other": 140
+  }
+ }
+}

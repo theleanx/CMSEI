@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Watchlist{% endblock %}
+{% block main %}
+<h1>Watchlist</h1>
+<p>Changes appear here when you return. Nothing is emailed or pushed, because there is no account to send to. Your watchlist is tied to a random token in this browser.</p>
+{% if request.query_params.get('deleted') %}<p class="note ok">Your session and watchlist were deleted.</p>{% endif %}
+{% if changes %}
+<section class="card" aria-labelledby="chg"><h2 id="chg">Changes since you last looked</h2>
+<ul>{% for c in changes %}<li>{% if not c.seen_at %}<span class="chip review">New</span> {% endif %}{{ c.summary }} <span class="small">({{ c.created_at.date() }})</span></li>{% endfor %}</ul>
+<form method="post" action="/watchlist/seen"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn secondary">Mark all as seen</button></form></section>
+{% endif %}
+{% if items %}
+<div class="tablewrap"><table class="plain data"><caption class="vh">Your watchlist</caption>
+<thead><tr><th scope="col">Material</th><th scope="col">Score</th><th scope="col">Tier</th><th scope="col">Changes</th><th scope="col"><span class="vh">Remove</span></th></tr></thead>
+<tbody>{% for r in items %}<tr><th scope="row"><a href="/materials/{{ r.id }}">{{ r.name }}</a></th><td class="num">{{ r.score }}</td><td><span class="chip {{ tier_class[r.tier] }}">{{ r.tier }}</span>{% if r.indicative %} <span class="small">Indicative</span>{% endif %}</td>
+<td>{% if r.unseen_changes %}{{ r.unseen_changes }} new{% else %}None{% endif %}</td>
+<td><form method="post" action="/watchlist/remove"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="material_id" value="{{ r.id }}"><button class="btn link">Remove</button></form></td></tr>{% endfor %}</tbody></table></div>
+<p class="small">Materials with Indicative data do not raise change alerts.</p>
+{% else %}
+<div class="card empty"><h2>Nothing on your watchlist yet</h2><p>Open a material and choose “Add to watchlist”.</p><p><a class="btn" href="/materials">Browse materials</a></p></div>
+{% endif %}
+{% if has_session %}
+<form method="post" action="/session/delete" class="danger"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn secondary">Delete my session and watchlist</button></form>
+{% endif %}
+{% endblock %}

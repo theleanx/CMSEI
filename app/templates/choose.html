@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Pick the closest material{% endblock %}
+{% block main %}
+<h1>Which of these did you mean?</h1>
+<p>We could not match your description to one material with enough confidence, so we are not guessing.</p>
+<form method="post" action="/assess" class="card form">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <input type="hidden" name="sourcing_region" value="{{ region }}">
+  <input type="hidden" name="volume_tier" value="{{ volume }}">
+  {% if candidates %}
+  <fieldset><legend>Closest matches</legend>
+    {% for id,name in candidates %}<label class="radio"><input type="radio" name="material_id" value="{{ id }}" {% if loop.first %}required{% endif %}> {{ name }}</label>{% endfor %}
+  </fieldset>
+  <button class="btn" type="submit">Use this material</button>
+  {% else %}
+  <p>No tracked material matched.</p>
+  {% endif %}
+</form>
+<form method="post" action="/assess" class="card form">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <input type="hidden" name="sourcing_region" value="{{ region }}">
+  <input type="hidden" name="volume_tier" value="{{ volume }}">
+  <label for="all">Or choose from the full list</label>
+  <select id="all" name="material_id" required><option value="">Choose a material</option>{% for id,name in all %}<option value="{{ id }}">{{ name }}</option>{% endfor %}</select>
+  <button class="btn secondary" type="submit">Show this material</button>
+</form>
+<p class="small">Your description was not stored.</p>
+{% endblock %}

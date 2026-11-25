@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: mse
+      POSTGRES_PASSWORD: mse
+      POSTGRES_DB: mse
+    volumes: [dbdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mse"]
+      interval: 5s
+      retries: 10
+  web:
+    build: .
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://mse:mse@db:5432/mse
+    depends_on:
+      db: {condition: service_healthy}
+    ports: ["8000:8000"]
+  daily:
+    build: .
+    profiles: ["jobs"]
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://mse:mse@db:5432/mse
+    depends_on:
+      db: {condition: service_healthy}
+    command: ["python", "-m", "app.worker.cli", "daily"]
+volumes:
+  dbdata:

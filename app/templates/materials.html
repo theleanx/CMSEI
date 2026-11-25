@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Tracked materials{% endblock %}
+{% block main %}
+<h1>Tracked materials</h1>
+<form method="get" action="/materials" class="inline" role="search"><label for="q">Search</label><input id="q" name="q" type="search" value="{{ q }}" maxlength="60" placeholder="Name or common use"><button class="btn secondary" type="submit">Search</button></form>
+<p class="small">{{ rows|length }} materials. Highest score first. <a href="/api/v1/materials.csv">Download CSV</a>.</p>
+<div class="tablewrap"><table class="plain data" id="mats">
+<caption class="vh">Tracked materials with score, tier and data grade</caption>
+<thead><tr><th scope="col">Material</th><th scope="col">Score</th><th scope="col">Tier</th><th scope="col">Range</th><th scope="col">Data</th><th scope="col">Largest producer</th></tr></thead>
+<tbody>{% for r in rows %}<tr>
+ <th scope="row"><a href="/materials/{{ r.id }}">{{ r.name }}</a></th><td class="num">{{ r.score }}</td>
+ <td><span class="chip {{ tier_class[r.tier] }}">{{ r.tier }}</span></td><td>{{ r.range_low|round|int }}–{{ r.range_high|round|int }}</td>
+ <td>{% if r.indicative %}Indicative{% else %}Grade {{ r.data_grade }}{% endif %}</td><td>{{ r.dominant_country }} {{ r.dominant_share|round|int }}%</td></tr>
+{% else %}<tr><td colspan="6">No material matched. Try a different word, or <a href="/materials">see the full list</a>.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

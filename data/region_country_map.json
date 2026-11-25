@@ -1,0 +1,311 @@
+{
+ "region_names": {
+  "CN": "China",
+  "APAC": "Other Asia-Pacific",
+  "EU": "Europe",
+  "NA": "North America (incl. domestic)",
+  "OTHER": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+ },
+ "countries": [
+  {
+   "country": "Argentina",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Australia",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Austria",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Belgium",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Bolivia",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Brazil",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Bulgaria",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Burma",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Burundi",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Canada",
+   "region_code": "NA",
+   "region_name": "North America (incl. domestic)"
+  },
+  {
+   "country": "Chile",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "China",
+   "region_code": "CN",
+   "region_name": "China"
+  },
+  {
+   "country": "Cuba",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "DR Congo",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Estonia",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Finland",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "France",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Germany",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Greece",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Guinea",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Guyana",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "India",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Indonesia",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Iran",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Israel",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Jamaica",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Japan",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Kazakhstan",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Kenya",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Laos",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Madagascar",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Malaysia",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Mexico",
+   "region_code": "NA",
+   "region_name": "North America (incl. domestic)"
+  },
+  {
+   "country": "Mongolia",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Morocco",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Mozambique",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "New Caledonia",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Nigeria",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Norway",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Pakistan",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Papua New Guinea",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Peru",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Philippines",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Portugal",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Russia",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Rwanda",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Saudi Arabia",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Senegal",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Sierra Leone",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "South Africa",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "South Korea",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Spain",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Sweden",
+   "region_code": "EU",
+   "region_name": "Europe"
+  },
+  {
+   "country": "Taiwan",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Thailand",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Turkey",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "United States",
+   "region_code": "NA",
+   "region_name": "North America (incl. domestic)"
+  },
+  {
+   "country": "Uzbekistan",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  },
+  {
+   "country": "Vietnam",
+   "region_code": "APAC",
+   "region_name": "Other Asia-Pacific"
+  },
+  {
+   "country": "Zimbabwe",
+   "region_code": "OTHER",
+   "region_name": "Other regions (Africa, Latin America, Middle East, Russia, Central Asia, Turkey)"
+  }
+ ]
+}

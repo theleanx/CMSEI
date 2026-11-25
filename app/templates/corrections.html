@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Report a correction{% endblock %}
+{% block main %}
+<h1>Report a correction</h1>
+{% if sent %}<p class="note ok">Thank you. Your report was received. It is acknowledged within 5 business days and decided within 15. The decision is posted below.</p>{% endif %}
+<p>Think a figure is wrong? Tell us which one and give a source. We collect no name or email. A government, company or trade body named in a source may send a written response by the same form; it will be linked from the material page.</p>
+<form method="post" action="/corrections" class="card form">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label for="m">Material</label><select id="m" name="material_id" required><option value="">Choose</option>{% for id,n in mats %}<option value="{{ id }}" {% if id==material %}selected{% endif %}>{{ n }}</option>{% endfor %}</select>
+  <label for="i">What is wrong</label><input id="i" name="item" maxlength="128" required placeholder="For example: China's share of production">
+  <label for="p">Proposed value</label><input id="p" name="proposed_value" maxlength="255" required>
+  <label for="s">Source link</label><input id="s" name="source_link" type="url" maxlength="512" required placeholder="https://">
+  <label for="n">Note (optional)</label><textarea id="n" name="note" maxlength="1000" rows="3"></textarea>
+  <button class="btn" type="submit">Send</button>
+</form>
+<h2>Public correction log</h2>
+<div class="tablewrap"><table class="plain data"><thead><tr><th scope="col">Received</th><th scope="col">Material</th><th scope="col">Item</th><th scope="col">Status</th><th scope="col">Decision</th></tr></thead>
+<tbody>{% for r in rows %}<tr><td>{{ r.created_at.date() }}</td><td>{{ r.material_id }}</td><td>{{ r.item }}: {{ r.proposed_value }}</td><td>{{ r.status|capitalize }}</td><td>{{ r.decision_reason or '' }}</td></tr>{% else %}<tr><td colspan="5">No corrections yet.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

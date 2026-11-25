@@ -1,0 +1,10 @@
+{% macro gauge(score, label) %}
+<svg class="gauge" viewBox="0 0 300 34" role="img" aria-label="{{ label }}: {{ score }} out of 100">
+  <rect x="0" y="10" width="90" height="12" class="g-low"/><rect x="90" y="10" width="90" height="12" class="g-mod"/>
+  <rect x="180" y="10" width="60" height="12" class="g-high"/><rect x="240" y="10" width="60" height="12" class="g-crit"/>
+  <path d="M{{ score*3 }} 2 l-6 -2 h12 z" class="g-mark" transform="translate(0 0)"/>
+  <rect x="{{ score*3 - 1.5 }}" y="4" width="3" height="26" class="g-mark"/>
+</svg>
+<div class="gauge-scale" aria-hidden="true"><span>0</span><span>30</span><span>60</span><span>80</span><span>100</span></div>
+{% endmacro %}
+{% macro grade_chip(g) %}<span class="chip grade-{{ g }}" title="Data grade {{ g }}">{% if g == 'A' %}Grade A{% elif g == 'B' %}Grade B{% elif g == 'C' %}Grade C · Indicative{% else %}Not scored{% endif %}</span>{% endmacro %}

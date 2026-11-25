@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Accessibility{% endblock %}
+{% block main %}
+<h1>Accessibility</h1>
+<p class="note warn"><strong>Self-assessment, not a certification.</strong> The site is built toward WCAG 2.2 AA and Section 508. No external audit has been done yet.</p>
+<ul>
+<li>Every task works without JavaScript. Pages are server-rendered with semantic headings, landmarks, labelled form fields and a skip link.</li>
+<li>Tiers are shown as text as well as colour. Charts have text equivalents (a table of the same values).</li>
+<li>Layout adapts down to phone width with no sideways page scroll. Text can be enlarged to 200%.</li>
+<li>Colours follow your light or dark setting and keep contrast of at least 4.5:1 for text.</li>
+</ul>
+<p>Found a barrier? Use <a href="/corrections">Report a correction</a> and say "Accessibility" in the item field.</p>
+{% endblock %}

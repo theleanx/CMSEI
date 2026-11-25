@@ -1,0 +1,16 @@
+{
+ "list_version": "draft-2026.11",
+ "status": "DRAFT. These lists have not been approved by a reviewer. Equal weights. Suggested NAICS groupings only.",
+ "sectors": [
+  {"id": "ev-batteries", "name": "EV motors and batteries", "naics": ["336320", "335910", "335312"],
+   "materials": ["lithium", "cobalt", "nickel", "rare-earths", "vanadium"]},
+  {"id": "semiconductors", "name": "Semiconductors and electronics", "naics": ["334413", "334419", "334118"],
+   "materials": ["gallium", "indium", "arsenic", "tantalum", "bismuth"]},
+  {"id": "aerospace-defense", "name": "Aerospace and defense alloys", "naics": ["336411", "336413", "332993"],
+   "materials": ["nickel", "niobium", "tantalum", "rare-earths", "magnesium-metal", "zirconium-hafnium"]},
+  {"id": "steel-metals", "name": "Steel and primary metals", "naics": ["331110", "331513", "331410"],
+   "materials": ["chromium", "niobium", "vanadium", "nickel", "zinc", "tin"]},
+  {"id": "chemicals-glass", "name": "Chemicals and glass", "naics": ["325180", "327211", "325199"],
+   "materials": ["fluorspar", "barite", "bauxite", "zinc"]}
+ ]
+}

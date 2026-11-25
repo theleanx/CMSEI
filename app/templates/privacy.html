@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Privacy{% endblock %}
+{% block main %}
+<h1>Privacy</h1>
+<p class="note warn"><strong>Draft.</strong> This text describes how the software behaves. It has not been reviewed by counsel. Operator-level details (hosting logs) depend on how the site is deployed.</p>
+<h2>What the software stores</h2>
+<ul>
+<li><strong>The score for each material.</strong> The same for everyone.</li>
+<li><strong>A resolved material id</strong> for each assessment, the rule ids of the suggestions shown, and a timestamp. Nothing else about the assessment.</li>
+<li><strong>A watchlist,</strong> only if you add a material. It is tied to a random token kept in a cookie. Only a hash of the token is stored. You can delete it on the <a href="/watchlist">Watchlist</a> page.</li>
+<li><strong>Counts by category and day</strong> (which material was checked, which tier). Linked to an anonymous session hash only if you have a session.</li>
+</ul>
+<h2>What the software does not store</h2>
+<ul>
+<li>The text you type to describe a material. It is used once, in memory, to find the category. It is not written to the database or to application logs.</li>
+<li>Your sourcing region and volume. They choose which suggestions are shown and are not stored.</li>
+<li>Your name, email, company or account. There are none.</li>
+<li>Application logs hold only the method, route, status code and timing. They do not hold query strings, request bodies or IP addresses.</li>
+</ul>
+<h2>What this does not cover</h2>
+<ul>
+<li>The hosting provider and any network layer in front of the site may keep their own request logs, including IP addresses. The operator can configure these but this software cannot guarantee it.</li>
+<li>When an AI model is used to find the category, your short text is sent to the model provider for that one call. The offline matcher is used when no model is configured. Check the provider's retention settings before relying on this.</li>
+<li>Session identifiers and IP addresses can count as personal data under some state laws. Counsel review is pending.</li>
+</ul>
+{% endblock %}
