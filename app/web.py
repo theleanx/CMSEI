@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from . import models as M, api as api_mod
 from .config import settings
 from .db import get_db
-from .engine import recommend, simulator, taxonomy, scoring as sc
+from .engine import explain, recommend, simulator, taxonomy, scoring as sc
 from .services import assess, sessions, snapshots as S, pdf
 
 BASE = pathlib.Path(__file__).resolve().parent
@@ -291,6 +291,7 @@ def _static(name):
             ctx["st"] = api_mod.data_status(db)
         if name == "events.html":
             ctx["events"] = db.execute(select(M.EventRecord).order_by(M.EventRecord.id.desc()).limit(200)).scalars().all()
+            ctx["expl"] = {e.id: explain.explain_record(e) for e in ctx["events"]}
         if name == "methodology.html":
             ctx["m"] = api_mod.methodology()
         return render(request, name, ctx)

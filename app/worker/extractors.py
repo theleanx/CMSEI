@@ -2,7 +2,7 @@
 from __future__ import annotations
 import json
 import re
-from . import gate
+from . import gate, screen
 
 PROMPT_VERSION = "extract-1"
 
@@ -38,6 +38,8 @@ def _country(sentence, text):
 
 
 def keyword_extract(doc: dict) -> list[dict]:
+    if screen.screen(doc.get("text", "")):
+        return []
     text = gate.norm(doc["text"])
     out = []
     for s in re.split(r"(?<=[.!?])\s+", text):
@@ -72,6 +74,8 @@ SYSTEM = (
 
 
 def claude_extract(client, model: str, doc: dict) -> list[dict]:
+    if screen.screen(doc.get("text", "")):      # defence in depth: the monitor has already quarantined these
+        return []
     mats = ", ".join(gate.MATERIALS)
     ctys = ", ".join(gate.COUNTRIES)
     msg = f"Materials: {mats}\nCountries: {ctys}\ndoc_id: {doc['id']}\n<document>\n{doc['text'][:12000]}\n</document>"

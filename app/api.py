@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from . import models as M
 from .config import settings
 from .db import get_db
-from .engine import recommend, simulator, taxonomy, scoring as sc
+from .engine import explain, recommend, simulator, taxonomy, scoring as sc
 from .services import assess, sessions, snapshots as S, pdf
 
 router = APIRouter(prefix="/api/v1")
@@ -93,6 +93,8 @@ def data_status(db: Session) -> dict:
         last[job] = None if not r else {"status": r.status, "started_at": r.started_at.isoformat() + "Z",
                                         "finished_at": r.finished_at.isoformat() + "Z" if r.finished_at else None, "detail": r.detail}
     held = db.execute(select(func.count()).select_from(M.EventRecord).where(M.EventRecord.status == "held")).scalar() or 0
+    log = S.verify_chain(db)
+    quarantined = db.execute(select(func.count()).select_from(M.QuarantinedDocument)).scalar() or 0
     snaps = db.execute(select(func.count()).select_from(M.ScoreSnapshot).where(M.ScoreSnapshot.superseded_at.is_(None))).scalar() or 0
     newest = db.execute(select(func.max(M.ScoreSnapshot.published_at))).scalar()
     feed_stale = True
@@ -104,8 +106,8 @@ def data_status(db: Session) -> dict:
     return {
         "launch_status": settings.launch_status, "event_layer": "published" if settings.publish_events else "shadow (computes events, publishes nothing)",
         "data_vintage": taxonomy.SOURCE_VINTAGE, "taxonomy_version": taxonomy.TAXONOMY_VERSION, "formula_version": sc.FORMULA_VERSION,
-        "published_snapshots": snaps, "newest_snapshot_at": newest.isoformat() + "Z" if newest else None,
-        "held_events": held, "held_alert": held > 5, "event_feed_stale": feed_stale, "jobs": last,
+        "snapshot_log": log, "published_snapshots": snaps, "newest_snapshot_at": newest.isoformat() + "Z" if newest else None,
+        "quarantined_documents": quarantined, "held_events": held, "held_alert": held > 5, "event_feed_stale": feed_stale, "jobs": last,
         "transcription": "USGS figures were read through a page reader and have not been checked against the PDFs by a person.",
         "caps": {"claude_daily_calls": settings.claude_daily_call_cap, "claude_monthly_calls": settings.claude_monthly_call_cap},
     }
@@ -128,7 +130,7 @@ def methodology():
                        "details": "See the Methodology page and the replication package."},
         "limits": ["Figures are transcribed from USGS MCS 2024 tables and are unverified.",
                    "Processing-stage shares exist for cobalt and rare earths only (top supplier). Other materials use production shares (grade C, Indicative).",
-                   "Alternate-source qualification has not been reviewed by a person. Provisional credit is shown with its effect.",
+                   "No alternate source has been verified by a person, so none earns credit. The score with every listed producer credited is shown as a sensitivity.",
                    "Substitution difficulty D is an unreviewed estimate (1.0) for every material.",
                    "The event layer runs in shadow mode and does not change any score."],
     }
@@ -271,9 +273,18 @@ def verify(snapshot_id: int, db: Session = Depends(get_db)):
     if not sn:
         raise ApiError(404, "not_found", "Unknown snapshot.")
     res = S.recompute(sn.payload)
-    ok = abs(res["composite"] - sn.composite) < 1e-9 and S._h(sn.payload) == sn.payload_hash
-    return {"snapshot_id": snapshot_id, "reproduced": ok, "stored_composite": sn.composite, "recomputed_composite": res["composite"],
-            "payload_hash_matches": S._h(sn.payload) == sn.payload_hash}
+    hash_ok = S._h(sn.payload) == sn.payload_hash
+    tier_ok = res["tier"] == sn.tier
+    expl_ok = S.regenerate_explanations(sn.payload) == sorted(c["explanation"] for c in sn.citations if c.get("explanation"))
+    ok = abs(res["composite"] - sn.composite) < 1e-9 and hash_ok and tier_ok and expl_ok
+    return {"snapshot_id": snapshot_id, "reproduced": ok, "tier_matches": tier_ok, "explanation_matches": expl_ok, "stored_composite": sn.composite, "recomputed_composite": res["composite"],
+            "payload_hash_matches": hash_ok, "formula_version": sn.formula_version, "digest": sn.digest, "prev_digest": sn.prev_digest}
+
+
+@router.get("/log/verify")
+def verify_log(db: Session = Depends(get_db)):
+    """Walks the append-only snapshot log and regenerates every stored score."""
+    return S.verify_chain(db)
 
 
 # ---------- sectors ----------
@@ -285,6 +296,7 @@ def _sector_rows(db):
                     "status": r.status if r else "not_scored", "score": sc.round_score(r.score) if r and r.score is not None else None,
                     "tier": r.tier if r else None, "top_material_id": r.top_material_id if r else None,
                     "reason": r.reason if r else None, "includes_indicative": bool(r and r.includes_indicative),
+                    "indicative_view": S.sector_indicative(db, s) if not (r and r.status == "scored") else None,
                     "list_status": taxonomy.SECTORS["status"]})
     return out
 
@@ -299,9 +311,10 @@ def sectors_csv(db: Session = Depends(get_db)):
     rows = _sector_rows(db)
     buf = io.StringIO()
     w = csv.writer(buf)
-    w.writerow(["sector_id", "sector", "status", "score", "tier", "highest_risk_material", "includes_indicative_inputs", "list_status"])
+    w.writerow(["sector_id", "sector", "status", "score", "tier", "highest_risk_material", "includes_indicative_inputs", "indicative_preview_score", "indicative_preview_tier", "list_status"])
     for r in rows:
-        w.writerow([r["id"], r["name"], r["status"], r["score"], r["tier"], r["top_material_id"], r["includes_indicative"], r["list_status"]])
+        w.writerow([r["id"], r["name"], r["status"], r["score"], r["tier"], r["top_material_id"], r["includes_indicative"],
+                    (r["indicative_view"] or {}).get("score"), (r["indicative_view"] or {}).get("tier"), r["list_status"]])
     return Response(buf.getvalue(), media_type="text/csv", headers={"Content-Disposition": 'attachment; filename="sector-exposure.csv"'})
 
 
@@ -423,4 +436,5 @@ def events(db: Session = Depends(get_db), limit: int = 100):
             "events": [{"id": r.id, "created_at": r.created_at.isoformat() + "Z", "material_id": r.material_id, "country": r.country,
                         "instrument": r.instrument, "stage": r.stage, "status": r.status, "reasons": r.reasons, "quote": r.quote,
                         "source_url": r.source_url, "source_tier": r.source_tier, "content_hash": r.content_hash, "extractor": r.extractor,
-                        "prompt_version": r.prompt_version, "reviewer": r.reviewer, "shadow": r.shadow} for r in rows]}
+                        "prompt_version": r.prompt_version, "reviewer": r.reviewer, "shadow": r.shadow,
+                        "explanation": explain.explain_record(r)} for r in rows]}

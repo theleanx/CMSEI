@@ -2,14 +2,14 @@
 {% block title %}Sector view{% endblock %}
 {% block main %}
 <h1>Sector view</h1>
-<p>A sector score is the average of the published scores of its materials. The highest-risk material is always shown beside it so an average cannot hide one weak link.</p>
+<p>A sector score is the average of the published scores of its materials. The highest-risk material is always shown beside it so an average cannot hide one weak link. Materials with only Indicative (grade C) data are left out of sector averages, so most sectors show as not scored until processing-stage data is added.</p>
 <p class="note warn"><strong>Draft lists.</strong> {{ list_status }} <a href="/api/v1/sectors.csv">Download CSV</a>.</p>
 <div class="cards">
 {% for s in sectors %}
  <a class="card tile" href="/sectors/{{ s.id }}">
   {% if s.status == 'scored' %}<span class="chip {{ tier_class[s.tier] }}">{{ s.tier }}</span><strong>{{ s.name }}</strong><span class="num">{{ s.score }}<small>/100</small></span>
   <span class="small">Highest-risk material: {{ names[s.top_material_id] }}{% if s.includes_indicative %} · includes Indicative inputs{% endif %}</span>
-  {% else %}<span class="chip">Not scored yet</span><strong>{{ s.name }}</strong><span class="small">{{ s.reason }}</span>{% endif %}
+  {% else %}<span class="chip">Not scored</span><strong>{{ s.name }}</strong><span class="small">{{ s.reason }}</span>{% if s.indicative_view %}<span class="small"><strong>Indicative preview: {{ s.indicative_view.score }}/100 ({{ s.indicative_view.tier }}).</strong> Includes grade C data. Not a sector score.</span>{% endif %}{% endif %}
  </a>
 {% endfor %}
 </div>

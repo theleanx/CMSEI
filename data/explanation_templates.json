@@ -1,0 +1,20 @@
+{
+  "version": "expl-1",
+  "note": "Stored templates for the sentence shown beside a confirmed event. Only fields of a validated extraction record are filled in. No language model writes any of this text.",
+  "instrument_phrase": {
+    "licence": "a licence requirement",
+    "ban": "an export ban",
+    "quota": "an export quota",
+    "tax": "an export tax"
+  },
+  "source_label": {"1": "official source", "2": "press source"},
+  "templates": {
+    "statement": "{country} made an official statement of concern about {material} exports. Effect on the multiplier: +{effect}.",
+    "proposed": "{country} has proposed {instrument} on {material} exports{date}. Effect on the multiplier: +{effect}.",
+    "enacted": "{country} has enacted {instrument} on {material} exports{date}. Effect on the multiplier: +{effect}.",
+    "ban": "{country} has banned exports of {material}{date}. Effect on the multiplier: +{effect}.",
+    "withdrawn": "{country} has withdrawn {instrument} on {material} exports. The earlier effect on the multiplier is removed."
+  },
+  "suffix": " Source: {host} ({tier}).",
+  "shadow_suffix": " Shadow mode: this event is logged and not counted in any score."
+}

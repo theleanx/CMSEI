@@ -19,7 +19,7 @@
     </div>
   </div>
   {{ gauge(s.score, 'Exposure score') }}
-  <p class="small">Market-level score, the same for every user. Computed {{ s.published_at[:10] }} from {{ s.data_as_of }}. Formula v{{ s.formula_version }}. Snapshot {{ s.snapshot_id }}.</p>
+  <p class="small">Market-level score, the same for every user. Computed {{ s.published_at[:10] }} from {{ s.data_as_of }}. Formula v{{ s.formula_version }}. Snapshot {{ s.snapshot_id }}. Log digest <code>{{ s.digest[:16] if s.digest else "none" }}</code>.</p>
   <p class="note warn"><strong>Validation status: not validated as a predictor.</strong> Backtests found this index does not beat simple world-production concentration at anticipating export restrictions. Use it to see where supply is concentrated and what could change it, not to forecast events. <a href="/methodology#validation">Test results</a>.</p>
   {% if indicative %}<p class="note warn"><strong>Indicative.</strong> Processing-stage shares are not loaded for this material, so mining or primary-production shares stand in for them. Real processing data would likely raise the processing term. Do not use this score alone.</p>{% endif %}
   {% if not reviewed %}<p class="note">A reviewer has not yet signed off this material's first data load.</p>{% endif %}
@@ -27,14 +27,15 @@
 
 <section class="card" aria-labelledby="sure-h">
   <h2 id="sure-h">How sure is this score?</h2>
-  <p>Reasonable range: <strong>{{ u.range_low|round|int }} to {{ u.range_high|round|int }}</strong>. This comes from {{ u.n_runs }} seeded variations of the weights, the substitution factor, event size, country shares, and which alternate sources count.</p>
+  <p>Reasonable range: <strong>{{ u.range_low|round|int }} to {{ u.range_high|round|int }}</strong>. This comes from {{ u.n_runs }} seeded variations of the weights, the substitution factor, event size, country shares, and whether each listed producer is credited as an alternate.</p>
   <table class="plain"><caption class="vh">Share of variations in each tier</caption>
     <thead><tr><th scope="col">Tier</th><th scope="col">Share of variations</th></tr></thead>
     <tbody>{% for t in ['Low','Moderate','High','Critical'] %}<tr><th scope="row">{{ t }}</th><td>{{ (u.tier_shares[t]*100)|round|int }}%</td></tr>{% endfor %}</tbody></table>
   <p>Changing only the weights keeps the tier {{ (u.weights_only_same_tier*100)|round|int }}% of the time.</p>
   {% if u.near_boundary %}<p class="note warn"><strong>Near a boundary.</strong> The tier changes in more than 20% of variations.</p>{% endif %}
-  {% if u.tier_depends_on_alternates %}<p class="note warn"><strong>The tier depends on one unreviewed assumption.</strong> The score counts other producing countries as possible alternates. No person has qualified any of them yet. If none counted, the score would be {{ u.no_alternate_credit_composite|round|int }} ({{ u.no_alternate_credit_tier }}).</p>
-  {% else %}<p class="small">If no other producer were credited as an alternate, the score would be {{ u.no_alternate_credit_composite|round|int }} ({{ u.no_alternate_credit_tier }}).</p>{% endif %}
+  {% if u.provisional_sources %}
+  <p class="{{ 'note warn' if u.tier_depends_on_alternates else 'small' }}">{% if u.tier_depends_on_alternates %}<strong>The tier depends on one unreviewed assumption.</strong> {% endif %}No other producing country has been verified as an alternate source by a person, so none earns credit in the score above. If all {{ u.provisional_sources }} listed producers were credited, the score would be {{ u.provisional_credit_composite|round|int }} ({{ u.provisional_credit_tier }}). Treat that as a sensitivity, not a second score.</p>
+  {% endif %}
 </section>
 
 <section class="card" aria-labelledby="comp-h">
@@ -45,7 +46,7 @@
       <tr><th scope="row">Concentration</th><td>{{ s.components.concentration|round|int }}/100</td><td>US import shares, 2019-22. Grade {{ u.grades.concentration }}.</td></tr>
       <tr><th scope="row">Processing-stage risk</th><td>{{ s.components.processing_risk|round|int }}/100</td><td>{{ material.processing.note }} Grade {{ u.grades.processing }}.</td></tr>
       <tr><th scope="row">Substitution difficulty</th><td>{{ s.components.substitution_difficulty|round|int }}/100</td><td>{{ u.N_eff|round(2) }} alternate-source credits; difficulty factor {{ material.substitution_difficulty }} (estimated, not expert-reviewed).</td></tr>
-      <tr><th scope="row">Geopolitical condition</th><td>{{ '%.2f'|format(s.components.geopolitical_multiplier) }}×</td><td>{% if s.components.geopolitical_multiplier > 1 %}Active confirmed events raise the score.{% else %}No confirmed event is counted. The event monitor runs in shadow mode and does not change scores yet.{% endif %}</td></tr>
+      <tr><th scope="row">Geopolitical condition</th><td>{{ '%.2f'|format(s.components.geopolitical_multiplier) }}×</td><td>{% if s.components.geopolitical_multiplier > 1 %}Active confirmed events raise the score.{% if s.explanation %} {{ s.explanation }}{% endif %}{% else %}No confirmed event is counted. The event monitor runs in shadow mode and does not change scores yet.{% endif %}</td></tr>
     </tbody></table></div>
   {% if divergence_note %}<p class="note warn"><strong>Import sources look varied, but world production is concentrated.</strong> {{ material.dominant_country }} produces {{ material.production.shares[0].share|round|int }}% of world output while the largest US import source is {{ material.dominant_import_country }} at {{ material.import.shares[0].share|round|int }}%.</p>{% endif %}
 </section>
@@ -108,7 +109,7 @@
   </div>
   <p class="small">Net import reliance (USGS, shown for context, not scored): {{ material.nir }}%.</p>
   <h3>Sources</h3>
-  <ul>{% for c in s.citations %}<li>{% if c.url %}<a href="{{ c.url }}" rel="noopener noreferrer">{{ c.label }}</a>{% else %}{{ c.label }}{% endif %}{% if c.tables %} <span class="small">({{ c.tables }})</span>{% endif %}</li>{% endfor %}</ul>
+  <ul>{% for c in s.citations %}<li>{% if c.url %}<a href="{{ c.url }}" rel="noopener noreferrer">{{ c.label }}</a>{% else %}{{ c.label }}{% endif %}{% if c.tables %} <span class="small">({{ c.tables }})</span>{% endif %}{% if c.explanation %}<br><span class="small">{{ c.explanation }}</span>{% endif %}</li>{% endfor %}</ul>
   <p class="small">Figures were read from the USGS tables through a page reader and have not been checked against the PDFs by a person. <a href="/corrections?material={{ mid }}">Report a correction</a>. <a href="/api/v1/snapshots/{{ s.snapshot_id }}/verify">Verify this snapshot</a>.</p>
 </section>
 

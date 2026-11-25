@@ -34,7 +34,8 @@ def home(request: Request, who: str = Depends(reviewer), db: Session = Depends(g
     pending = db.execute(select(M.EventRecord).where(M.EventRecord.status.like("pending%")).order_by(M.EventRecord.id.desc()).limit(30)).scalars().all()
     corr = db.execute(select(M.Correction).where(M.Correction.status == "received").order_by(M.Correction.id)).scalars().all()
     mats = db.execute(select(M.Material).order_by(M.Material.name)).scalars().all()
-    return render(request, "admin.html", {"who": who, "held": held, "pending": pending, "corr": corr, "mats": mats})
+    quar = db.execute(select(M.QuarantinedDocument).order_by(M.QuarantinedDocument.id.desc()).limit(50)).scalars().all()
+    return render(request, "admin.html", {"who": who, "held": held, "pending": pending, "corr": corr, "mats": mats, "quar": quar})
 
 
 @router.post("/event/{eid}")

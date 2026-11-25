@@ -6,6 +6,9 @@ S = min(100, 100/(1+N_eff) * D). Base = 0.3C + 0.4P + 0.3S. Composite = min(100,
 from __future__ import annotations
 
 FORMULA_VERSION = "1.1"
+SEVERITY_TABLE_VERSION = "sev-1"      # the EFFECT table below; bump when any effect value changes
+SOURCE_TIER_TABLE_VERSION = "tier-1"  # minimum source tier and independent-source count per stage (worker/gate.py)
+HOLD_SET_TABLE_VERSION = "hold-1"     # stages and changes that wait for a reviewer (worker/gate.py)
 WEIGHTS = (0.3, 0.4, 0.3)
 RAW_STAGE_WEIGHT, PROC_STAGE_WEIGHT = 0.3, 0.7
 FULL_CREDIT_SHARE = 5.0
@@ -14,7 +17,9 @@ EFFECT = {"statement": 0.02, "proposed": 0.08, "enacted": 0.15, "ban": 0.30}
 STAGE_RANK = {"statement": 1, "proposed": 2, "enacted": 3, "ban": 4}
 TIER_NAMES = ("Low", "Moderate", "High", "Critical")
 # credit given to a source by qualification status (spec 4.2: unverified or unqualified get none)
-CREDIT_STATUS = {"qualified": True, "provisional": True, "unverified": False, "unqualified": False}
+# Only a source whose qualification a person has confirmed earns credit (paper Section III-B; patent claim 4).
+# "provisional" means listed as a producer but not yet reviewed: it earns nothing in the official score.
+CREDIT_STATUS = {"qualified": True, "provisional": False, "unverified": False, "unqualified": False}
 
 
 def tier_of(score: float) -> str:
@@ -95,3 +100,7 @@ def divergence_note(m: dict) -> bool:
 
 def round_score(x: float) -> int:
     return int(x + 0.5)
+
+
+# Formula versions this build can regenerate. Old snapshots name their version; an unknown one is refused, not guessed.
+FORMULAS = {"1.1": score_inputs}

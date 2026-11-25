@@ -29,7 +29,7 @@ class Settings:
     # Event layer. Shadow mode computes events and publishes nothing. Go-live needs the 300-document test.
     publish_events = _b("PUBLISH_EVENTS", False)
     launch_status = os.environ.get("LAUNCH_STATUS", "preview")             # preview | live
-    indicative_in_sectors = _b("INDICATIVE_IN_SECTORS", True)
+    indicative_in_sectors = _b("INDICATIVE_IN_SECTORS", False)   # paper Section III-D: grade C is left out of sector means
     indicative_alerts = _b("INDICATIVE_ALERTS", False)
     rate_per_minute_ip = int(os.environ.get("RATE_PER_MINUTE_IP", "60"))
     rate_assess_per_minute_ip = int(os.environ.get("RATE_ASSESS_PER_MINUTE_IP", "20"))

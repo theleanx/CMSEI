@@ -11,9 +11,9 @@ A market-level 0–100 score for how exposed US manufacturers are to supply disr
 - **Not validated as a predictor.** Backtests found the index does not beat simple world-production concentration at anticipating export restrictions. Use it to see where supply is concentrated and what could change it.
 - **Data is unverified and dated.** Figures were transcribed from USGS Mineral Commodity Summaries 2024 and have not been checked against the PDFs by a person.
 - **Processing-stage data exists for two materials** (cobalt, rare earths). The other 17 use production shares as a stand-in and are marked Indicative, grade C.
-- **Alternate-source credit is provisional.** For rare earths it moves the score from High (74.7) to Moderate (50.9). The result page says so.
+- **No alternate source is verified yet, so none earns credit.** This follows the paper and patent claim 4 (only verified sources count). Scores are therefore higher than the paper's pilot table, which credited every producer by share. Each result page shows the score if all listed producers were credited. For rare earths that is 50.9 (Moderate) against the official 74.7 (High).
 - **The event layer runs in shadow mode.** It collects and gates events but changes no score. Do not set `PUBLISH_EVENTS=true` until the go-live accuracy test has been run on at least 300 labelled documents and a reviewer has approved.
-- **Sectors are a draft list.**
+- **Sectors are a draft list, and none can be scored yet.** Materials with only Indicative (grade C) data are left out of sector means, as the paper says. An indicative preview is shown and labelled as such.
 - **Licence, terms and privacy text are pending legal review.** No licence file is included on purpose. Add one before accepting outside contributions.
 
 ## Formula (v1.1)
@@ -41,9 +41,21 @@ Worked example: C 81.52, P 69.4, S 65, G 1.08 → 77.45, High.
 | Event monitor (fetch, extract, gate, hold queue, decay, re-verify) | `app/worker/` |
 | Data and taxonomy | `data/`, `scripts/build_taxonomy.py` |
 | Migrations | `migrations/` |
-| Tests (77) | `tests/` |
+| Tests (128) | `tests/` |
 
 This build uses FastAPI with server-rendered pages, not Next.js. It is one deployable service, which keeps the privacy and security surface small.
+
+## Patent-relevant behaviour, and where it lives
+
+| Behaviour | Code |
+|---|---|
+| Hash-chained, append-only snapshot log; `GET /api/v1/log/verify` walks it and regenerates every score, tier and explanation sentence | `app/services/chain.py`, `app/services/snapshots.py` |
+| Documents with text addressed to an automated reader are quarantined before any extractor runs | `app/worker/screen.py`, `app/worker/monitor.py` |
+| Explanation sentence filled from a stored template and validated fields; no model text | `app/engine/explain.py`, `data/explanation_templates.json` |
+| Only verified alternate sources earn credit; continuous partial credit below 5% | `app/engine/scoring.py` |
+| Uncertainty range uses the paper's Section V-A method (5th to 95th percentile of 50,000 seeded draws) | `app/engine/uncertainty.py` |
+
+`tests/test_paper_alignment.py` reproduces the paper's worked example, Table III and the Section V-A figures (71.7 to 83.7, High in 74.6% of draws).
 
 ## Privacy by design
 

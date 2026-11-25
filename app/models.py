@@ -23,6 +23,7 @@ class Material(Base):
 
 class ScoreSnapshot(Base):
     __tablename__ = "score_snapshot"
+    __table_args__ = (UniqueConstraint("prev_digest", name="uq_score_snapshot_prev_digest"),)   # one successor per entry: no forks
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     material_id: Mapped[str] = mapped_column(ForeignKey("material.id"), index=True)
     formula_version: Mapped[str] = mapped_column(String(16))
@@ -34,6 +35,8 @@ class ScoreSnapshot(Base):
     events_hash: Mapped[str] = mapped_column(String(64))
     payload: Mapped[dict] = mapped_column(JSON)               # exact inputs; recompute() must reproduce the result
     payload_hash: Mapped[str] = mapped_column(String(64), index=True)
+    prev_digest: Mapped[str | None] = mapped_column(String(64), nullable=True)   # digest of the entry before this one
+    digest: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     concentration: Mapped[float] = mapped_column(Float)
     processing_risk: Mapped[float] = mapped_column(Float)
     substitution_difficulty: Mapped[float] = mapped_column(Float)
@@ -176,3 +179,33 @@ class Counter(Base):
     __tablename__ = "counter"
     key: Mapped[str] = mapped_column(String(96), primary_key=True)
     value: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class QuarantinedDocument(Base):
+    """A source document held back from the language model because it contained instruction-like text (claim 6)."""
+    __tablename__ = "quarantined_document"
+    __table_args__ = (UniqueConstraint("content_hash", "url", name="uq_quarantine_doc"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=now)
+    doc_id: Mapped[str] = mapped_column(String(128))
+    url: Mapped[str] = mapped_column(String(512))
+    host: Mapped[str] = mapped_column(String(128))
+    content_hash: Mapped[str] = mapped_column(String(64), index=True)
+    reasons: Mapped[list] = mapped_column(JSON)
+
+
+# ---- append-only guard for the snapshot log (claim 5): rows are never deleted, and only superseded_at may change
+from sqlalchemy import event, inspect as _inspect
+
+
+@event.listens_for(ScoreSnapshot, "before_delete")
+def _no_delete(mapper, connection, target):
+    raise RuntimeError("score_snapshot is append-only: rows cannot be deleted")
+
+
+@event.listens_for(ScoreSnapshot, "before_update")
+def _only_supersede(mapper, connection, target):
+    st = _inspect(target)
+    for attr in st.mapper.column_attrs:
+        if attr.key != "superseded_at" and st.attrs[attr.key].history.has_changes():
+            raise RuntimeError(f"score_snapshot is append-only: {attr.key} cannot be changed")

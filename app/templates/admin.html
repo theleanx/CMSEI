@@ -7,6 +7,10 @@
 <blockquote>{{ e.quote }}</blockquote><p class="small"><a href="{{ e.source_url }}" rel="noopener noreferrer">{{ e.source_url }}</a> · hash {{ e.content_hash }}</p>
 <form method="post" action="/admin/event/{{ e.id }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn" name="decision" value="approve">Approve</button><button class="btn secondary" name="decision" value="reject">Reject</button></form></div>
 {% else %}<p>None.</p>{% endfor %}
+<h2>Quarantined documents ({{ quar|length }})</h2>
+<p class="small">These documents contained text addressed to an automated reader. They were not given to any extractor.</p>
+{% for q in quar %}<div class="card"><p><strong>{{ q.host }}</strong> · {{ q.created_at }} · {{ q.reasons|join(', ') }}</p><p class="small"><a href="{{ q.url }}" rel="noopener noreferrer">{{ q.url }}</a> · hash {{ q.content_hash }}</p></div>
+{% else %}<p>None.</p>{% endfor %}
 <h2>Corrections to decide ({{ corr|length }})</h2>
 {% for c in corr %}<div class="card"><p><strong>{{ c.material_id }}</strong> · {{ c.item }} → {{ c.proposed_value }}</p><p class="small"><a href="{{ c.source_link }}" rel="noopener noreferrer">{{ c.source_link }}</a></p><p>{{ c.note }}</p>
 <form method="post" action="/admin/correction/{{ c.id }}" class="inline"><input type="hidden" name="csrf" value="{{ csrf }}"><label for="r{{c.id}}">Reason (required to decline)</label><input id="r{{c.id}}" name="reason" maxlength="500"><button class="btn" name="decision" value="accepted">Accept</button><button class="btn secondary" name="decision" value="declined">Decline</button></form></div>

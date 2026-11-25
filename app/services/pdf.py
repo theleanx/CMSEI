@@ -33,10 +33,10 @@ def material_report(m: dict, snap: dict, recs: list | None = None, scenario_labe
            Paragraph("Market-level index, identical for every user. Preview data; see status below.", small), Spacer(1, 6)]
     els.append(Paragraph(f"<b>Score {snap['score']} / 100 — {snap['tier']}</b> (range {u['range_low']} to {u['range_high']})", ParagraphStyle(
         "big", parent=body, fontSize=14, leading=18)))
-    if u.get("tier_depends_on_alternates"):
-        els.append(Paragraph(f"Note: the tier depends on alternate-source qualification, which has not been reviewed. "
-                             f"If no other producer were credited the score would be {u['no_alternate_credit_composite']} "
-                             f"({u['no_alternate_credit_tier']}).", body))
+    if u.get("provisional_sources"):
+        els.append(Paragraph(f"No other producer has been verified as an alternate source, so none earns credit. If all "
+                             f"{u['provisional_sources']} listed producers were credited the score would be "
+                             f"{u['provisional_credit_composite']} ({u['provisional_credit_tier']}).", body))
     rows = [["Measure", "Value"],
             ["Concentration", f"{snap['components']['concentration']} / 100"],
             ["Processing-stage risk", f"{snap['components']['processing_risk']} / 100"],

@@ -16,7 +16,7 @@ from .. import models as M
 from ..config import settings
 from ..engine import scoring as sc, taxonomy
 from ..services import snapshots as S, assess
-from . import gate, extractors, fetch
+from . import screen, gate, extractors, fetch
 
 log = logging.getLogger("mse.monitor")
 DECAY_DAYS = gate.DECAY_DAYS
@@ -270,6 +270,19 @@ def reverify(db: Session, today: dt.date | None = None, client=None) -> dict:
 
 
 # ---------------------------------------------------------------- job entry points
+def quarantine(db: Session, doc: dict, reasons: list[str]) -> bool:
+    """Record a document that was held back from every extractor. Returns True if it is new."""
+    ch = hashlib.sha256(gate.norm(doc["text"]).encode()).hexdigest()
+    url = (doc.get("url") or "")[:512]
+    if db.execute(select(M.QuarantinedDocument.id).where(M.QuarantinedDocument.content_hash == ch,
+                                                         M.QuarantinedDocument.url == url)).first():
+        return False
+    db.add(M.QuarantinedDocument(doc_id=str(doc.get("id", ""))[:128], url=url, host=(doc.get("host") or "")[:128],
+                                 content_hash=ch, reasons=reasons))
+    db.commit()
+    return True
+
+
 def run_monitor(db: Session, today: dt.date | None = None, docs: list | None = None, extractor=None) -> dict:
     today = today or dt.date.today()
     with job(db, "monitor") as jr:
@@ -286,8 +299,12 @@ def run_monitor(db: Session, today: dt.date | None = None, docs: list | None = N
                 extractor = lambda d: extractors.claude_extract(client, settings.claude_model, d)
             else:
                 extractor = extractors.keyword_extract
-        n_docs = n_cands = n_rej = 0
+        n_docs = n_cands = n_rej = n_quar = 0
         for d in docs:
+            reasons = screen.screen(d.get("text", ""))
+            if reasons:                       # claim 6: instruction-like text never reaches an extractor
+                n_quar += 1 if quarantine(db, d, reasons) else 0
+                continue
             if client is not None:
                 if not assess.budget_ok(db):
                     log.warning("Claude call cap reached; stopping extraction")
@@ -307,6 +324,6 @@ def run_monitor(db: Session, today: dt.date | None = None, docs: list | None = N
         dec = decay_and_expire(db, today)
         if settings.publish_events:
             S.publish_all(db)
-        jr.detail = {"documents": n_docs, "candidates": n_cands, "rejected": n_rej, "extractor": name,
+        jr.detail = {"quarantined": n_quar, "documents": n_docs, "candidates": n_cands, "rejected": n_rej, "extractor": name,
                      "mode": "live" if settings.publish_events else "shadow", **q, **a, **dec}
         return jr.detail

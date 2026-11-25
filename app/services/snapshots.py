@@ -7,7 +7,8 @@ from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from .. import models as M
 from ..config import settings
-from ..engine import scoring as sc, uncertainty, taxonomy
+from ..engine import scoring as sc, uncertainty, taxonomy, explain
+from . import chain
 
 MODEL_VERSION = "none-scores-are-rule-based"
 PROMPT_VERSION = "n/a"
@@ -41,13 +42,20 @@ def grades_for(m: dict, today: dt.date) -> dict:
     return comp
 
 
-def active_stages(db: Session, material_id: str) -> list[str]:
-    want = "active" if settings.publish_events else None
-    if want is None:
+def active_events(db: Session, material_id: str) -> list[dict]:
+    """The events that count toward G right now. Empty in shadow mode. Each carries a digest of its source text."""
+    if not settings.publish_events:
         return []
-    rows = db.execute(select(M.EventRecord.stage).where(M.EventRecord.material_id == material_id,
-                                                         M.EventRecord.status == "active")).all()
-    return [r[0] for r in rows if r[0]]
+    rows = db.execute(select(M.EventRecord).where(M.EventRecord.material_id == material_id,
+                                                  M.EventRecord.status == "active").order_by(M.EventRecord.id)).scalars()
+    return [{"country": r.country, "material": r.material_id, "instrument": r.instrument, "stage": r.stage,
+             "effect": sc.EFFECT.get(r.stage, 0.0), "effective_date": r.effective_date, "host": r.source_host,
+             "source_digest": r.content_hash, "source_url": r.source_url}
+            for r in rows if r.stage]
+
+
+def active_stages(db: Session, material_id: str) -> list[str]:
+    return [e["stage"] for e in active_events(db, material_id)]
 
 
 def shadow_stages(db: Session, material_id: str) -> list[str]:
@@ -56,16 +64,29 @@ def shadow_stages(db: Session, material_id: str) -> list[str]:
     return [r[0] for r in rows if r[0]]
 
 
-def build_payload(m: dict, stages: list[str]) -> dict:
+def build_payload(m: dict, events: list[dict]) -> dict:
+    events = sorted(events, key=lambda e: (e["country"], e["instrument"], e["stage"]))
     return {
-        "formula_version": sc.FORMULA_VERSION, "weights": list(sc.WEIGHTS),
+        "formula_version": sc.FORMULA_VERSION, "severity_table_version": sc.SEVERITY_TABLE_VERSION,
+        "source_tier_table_version": sc.SOURCE_TIER_TABLE_VERSION, "hold_set_table_version": sc.HOLD_SET_TABLE_VERSION,
+        "explanation_template_version": explain.TEMPLATE_VERSION, "weights": list(sc.WEIGHTS),
         "taxonomy_version": taxonomy.TAXONOMY_VERSION, "source_vintage": taxonomy.SOURCE_VINTAGE,
-        "material_id": m["id"], "inputs": sc.inputs_from_material(m), "event_stages": sorted(stages),
+        "material_id": m["id"], "inputs": sc.inputs_from_material(m),
+        "events": events, "event_stages": sorted(e["stage"] for e in events),
     }
 
 
+def regenerate_explanations(payload: dict) -> list[str]:
+    """The explanation sentences a payload implies, rebuilt from its events with the stored template."""
+    return sorted(explain.explain(e, counted=True) for e in payload.get("events", []))
+
+
 def recompute(payload: dict) -> dict:
-    return sc.score_inputs(payload["inputs"], payload["event_stages"], tuple(payload["weights"]))
+    """Regenerate a score from a stored payload using the formula version the payload names."""
+    if payload["formula_version"] not in sc.FORMULAS:
+        raise ValueError(f"unknown formula version {payload['formula_version']}")
+    stages = [e["stage"] for e in payload.get("events", [])] if "events" in payload else payload["event_stages"]
+    return sc.FORMULAS[payload["formula_version"]](payload["inputs"], stages, tuple(payload["weights"]))
 
 
 def citations_for(m: dict, db: Session | None = None) -> list[dict]:
@@ -74,7 +95,8 @@ def citations_for(m: dict, db: Session | None = None) -> list[dict]:
         for r in db.execute(select(M.EventRecord).where(M.EventRecord.material_id == m["id"],
                                                          M.EventRecord.status == "active")).scalars():
             cites.append({"type": "evidence", "kind": "event", "label": f"{r.country}: {r.stage} ({r.instrument})",
-                          "url": r.source_url, "tables": f"Source hash {r.content_hash}"})
+                          "url": r.source_url, "tables": f"Source hash {r.content_hash}",
+                          "effect": sc.EFFECT.get(r.stage, 0.0), "explanation": explain.explain_record(r, counted=True)})
     return cites
 
 
@@ -99,9 +121,12 @@ def publish_all(db: Session, today: dt.date | None = None) -> dict:
     today = today or dt.date.today()
     ensure_materials(db)
     created, unchanged = [], []
+    tail = db.execute(select(M.ScoreSnapshot.digest).where(M.ScoreSnapshot.digest.is_not(None))
+                      .order_by(M.ScoreSnapshot.id.desc()).limit(1)).scalar() or chain.GENESIS
     for mid, m in taxonomy.MATERIALS.items():
-        stages = active_stages(db, mid)
-        payload = build_payload(m, stages)
+        events = active_events(db, mid)
+        stages = [e["stage"] for e in events]
+        payload = build_payload(m, events)
         ph = _h(payload)
         cur = latest(db, mid)
         if cur and cur.payload_hash == ph:
@@ -114,12 +139,16 @@ def publish_all(db: Session, today: dt.date | None = None) -> dict:
             material_id=mid, formula_version=sc.FORMULA_VERSION, taxonomy_version=taxonomy.TAXONOMY_VERSION,
             data_as_of=taxonomy.SOURCE_VINTAGE,
             source_snapshot={"source": taxonomy.SOURCE_VINTAGE, "material_record_hash": _h(m), "transcription": m["transcription"]},
-            model_version=MODEL_VERSION, prompt_version=PROMPT_VERSION, events_hash=_h(sorted(stages)),
+            model_version=MODEL_VERSION, prompt_version=PROMPT_VERSION, events_hash=_h(payload["events"]),
             payload=payload, payload_hash=ph,
             concentration=res["C"], processing_risk=res["P"], substitution_difficulty=res["S"],
             geopolitical_multiplier=res["G"], composite=res["composite"], tier=res["tier"], grade=grades["overall"],
             uncertainty=dict(unc, grades=grades, N_eff=res["N_eff"]), citations=citations_for(m, db),
+            published_at=M.now(),
         )
+        snap.prev_digest = tail
+        snap.digest = chain.entry_digest(chain.entry_body(snap), tail)
+        tail = snap.digest
         db.add(snap)
         db.flush()
         if cur:
@@ -156,24 +185,30 @@ def sector_scores(db: Session) -> list[dict]:
     listed material has a published score. Grade C inputs are excluded unless the preview setting includes them."""
     out = []
     for s in taxonomy.SECTORS["sectors"]:
-        snaps, missing, indicative = [], [], False
+        snaps, missing, grade_c, indicative = [], [], [], False
         for mid in s["materials"]:
             sn = latest(db, mid)
-            if sn is None:
+            if sn is None or sn.grade == "none":
                 missing.append(mid)
                 continue
-            if sn.grade in ("C", "none"):
-                if sn.grade == "none" or not settings.indicative_in_sectors:
-                    missing.append(mid)
+            if sn.grade == "C":
+                if not settings.indicative_in_sectors:
+                    grade_c.append(mid)
                     continue
                 indicative = True
             snaps.append(sn)
+        missing_all = missing + grade_c
         prev = db.execute(select(M.SectorScore).where(M.SectorScore.sector_id == s["id"],
                                                        M.SectorScore.superseded_at.is_(None))).scalars().first()
         ids = sorted(x.id for x in snaps)
-        if missing:
-            row = dict(status="not_scored", score=None, tier=None, top=None,
-                       reason="No usable published score for: " + ", ".join(missing))
+        if missing_all:
+            parts = []
+            if grade_c:
+                parts.append("only Indicative (grade C) data, which the method leaves out of sector means: " +
+                             ", ".join(taxonomy.MATERIALS[m]["name"] for m in grade_c))
+            if missing:
+                parts.append("no usable published score: " + ", ".join(taxonomy.MATERIALS[m]["name"] for m in missing))
+            row = dict(status="not_scored", score=None, tier=None, top=None, reason="Not scored. " + "; ".join(parts) + ".")
         else:
             avg = sum(x.composite for x in snaps) / len(snaps)
             top = max(snaps, key=lambda x: x.composite)
@@ -191,8 +226,31 @@ def sector_scores(db: Session) -> list[dict]:
     return out
 
 
+def sector_indicative(db: Session, sector: dict) -> dict | None:
+    """A labelled preview mean that includes grade C materials. It is never stored, never used for alerts, and never
+    shown as the sector score. None when any member has no published score at all."""
+    snaps = []
+    for mid in sector["materials"]:
+        sn = latest(db, mid)
+        if sn is None or sn.grade == "none":
+            return None
+        snaps.append(sn)
+    avg = sum(x.composite for x in snaps) / len(snaps)
+    top = max(snaps, key=lambda x: x.composite)
+    return {"score": sc.round_score(avg), "tier": sc.tier_of(avg), "top_material_id": top.material_id,
+            "grade_c_members": [x.material_id for x in snaps if x.grade == "C"],
+            "label": "Indicative preview. Includes materials with grade C data. Not a sector score."}
+
+
+def top_explanation(sn: M.ScoreSnapshot) -> str | None:
+    """Sentence for the active event that adds most to the multiplier (patent paragraph 0077)."""
+    ev = [c for c in sn.citations if c.get("explanation")]
+    return max(ev, key=lambda c: c.get("effect", 0.0))["explanation"] if ev else None
+
+
 def snapshot_dict(sn: M.ScoreSnapshot) -> dict:
     return {
+        "explanation": top_explanation(sn),
         "snapshot_id": sn.id, "material_id": sn.material_id, "composite": round(sn.composite, 2), "score": sc.round_score(sn.composite),
         "tier": sn.tier, "components": {
             "concentration": round(sn.concentration, 1), "processing_risk": round(sn.processing_risk, 1),
@@ -200,6 +258,33 @@ def snapshot_dict(sn: M.ScoreSnapshot) -> dict:
         "data_grade": sn.grade, "uncertainty": sn.uncertainty, "formula_version": sn.formula_version,
         "taxonomy_version": sn.taxonomy_version, "data_as_of": sn.data_as_of, "model_version": sn.model_version,
         "prompt_version": sn.prompt_version, "payload_hash": sn.payload_hash, "events_hash": sn.events_hash,
+        "digest": sn.digest, "prev_digest": sn.prev_digest,
         "published_at": sn.published_at.isoformat() + "Z", "superseded_at": sn.superseded_at.isoformat() + "Z" if sn.superseded_at else None,
         "citations": sn.citations,
     }
+
+
+def verify_chain(db: Session) -> dict:
+    """Walk the whole log. Intact means: every entry links to the one before, every digest matches its content,
+    and every stored score regenerates from its stored payload."""
+    rows = db.execute(select(M.ScoreSnapshot).order_by(M.ScoreSnapshot.id).execution_options(populate_existing=True)).scalars().all()
+    prev, n, unchained, first_break = chain.GENESIS, 0, 0, None
+    for sn in rows:
+        if sn.digest is None:
+            unchained += 1
+            continue
+        n += 1
+        ok = sn.prev_digest == prev and sn.digest == chain.entry_digest(chain.entry_body(sn), prev) \
+            and _h(sn.payload) == sn.payload_hash
+        if ok:
+            try:
+                res = recompute(sn.payload)
+                ok = abs(res["composite"] - sn.composite) < 1e-9 and res["tier"] == sn.tier \
+                    and regenerate_explanations(sn.payload) == sorted(c["explanation"] for c in sn.citations if c.get("explanation"))
+            except Exception:
+                ok = False
+        if not ok and first_break is None:
+            first_break = sn.id
+        prev = sn.digest
+    return {"entries": n, "unchained_legacy_entries": unchained, "intact": first_break is None, "first_break_snapshot_id": first_break,
+            "head_digest": prev if n else None}

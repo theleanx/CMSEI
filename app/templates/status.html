@@ -9,7 +9,9 @@
 <tr><th scope="row">Event layer</th><td>{{ st.event_layer }}</td></tr>
 <tr><th scope="row">Data vintage</th><td>{{ st.data_vintage }}</td></tr>
 <tr><th scope="row">Published snapshots</th><td>{{ st.published_snapshots }}</td></tr>
+<tr><th scope="row">Snapshot log</th><td>{% if st.snapshot_log.intact %}Intact: {{ st.snapshot_log.entries }} chained entries, each linked to the one before and each score regenerated from its stored inputs.{% else %}<strong>Broken at snapshot {{ st.snapshot_log.first_break_snapshot_id }}.</strong> Do not rely on scores until a maintainer has checked.{% endif %}</td></tr>
 <tr><th scope="row">Newest snapshot</th><td>{{ st.newest_snapshot_at or 'none' }}</td></tr>
+<tr><th scope="row">Quarantined documents</th><td>{{ st.quarantined_documents }} (text addressed to an automated reader; never sent to an extractor)</td></tr>
 <tr><th scope="row">Held events</th><td>{{ st.held_events }}{% if st.held_alert %} (above the alert level of 5){% endif %}</td></tr>
 <tr><th scope="row">Event feed</th><td>{% if st.event_feed_stale %}Stale or not yet run. Event stages are not counted in any score.{% else %}Fresh{% endif %}</td></tr>
 </tbody></table></div>
